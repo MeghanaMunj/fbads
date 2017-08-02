@@ -1,0 +1,30 @@
+
+The auth dialog url was https://www.facebook.com/v2.10/dialog/oauth?scope=ads_read&redirect_uri=https%3A%2F%2Fwww.facebook.com%2Fconnect%2Flogin_success.html&response_type=code+token&client_id=1843616625966235
+
+('Current URL ---------', u'https://www.facebook.com/connect/login_success.html#access_token=EAAaMwnIXvJsBANacBQ6SOrJiCAZBNOr3qYMU79FK9ZBBtUk0QctSq86KMQB0IU6O0ZAKcmrMssZBRSgJlmGWtIrpZCyAtJIoTuYs0ddDQuUTX8Jv1I8RAUSEF23aZCS1n1dYwaGHz394Wb9sxkmMIn7M9IxWxU7GgZD&expires_in=5183938&code=AQBXz6QsDaD6rIBfewWu6LSa6yQE-r9Xyu9-oFcrdQqmNvAUEyWP82FqfNhQKnWxOL2krTQQPqIpxjpiWpv8ysDnTHEQlIHNamlNo3fJSj1jH7OxEhCCNkmNTKSrPlMW1KG4yMarQuWk1AlxyNDd28isJjCVZimev7rS1I9fUAsrFjBJKzoV1leiYWmJ3JTpCANtVb7C5ZNnoZJR731YCVRuFbMhOs8yYpFN6gVxHDcPDgQH74cbc1K5l6mar6uqddhR2v512YjjWx_75YLoUrHJI50DwZ3K_ZIvkyHvwlBYTQEy_VbI6-iYgnD76tfJZbE')
+WARNING:root:parent_id as a parameter of constructor is being deprecated.
+WARNING:root:parent_id as a parameter of constructor is being deprecated.
+c:\Python27\lib\site-packages\facebookads\utils\api_utils.py:30: UserWarning: adaccounts does not allow field email
+  warnings.warn(message)
+{"data":[{"name":"Meghana Munj","id":"act_328952626"},{"name":"MammothAdsAnalytics","id":"act_102055410480984"}],"paging":{"cursors":{"before":"NjAwNTU5NDIyOTQ5NAZDZD","after":"MjM4NDI2MTAzMDI4NjA0MjIZD"}},"summary":{"total_count":2}}
+https://graph.facebook.com/v2.10/me/adaccounts
+('LW_ACCOUNT = ', <AdAccount> {
+    "id": "act_328952626",
+    "name": "Meghana Munj"
+})
+{"data":[]}
+https://graph.facebook.com/v2.10/act_328952626/insights
+{"data":[],"summary":{"total_count":0}}
+https://graph.facebook.com/v2.10/act_328952626/campaigns
+('Campaign ----', [])
+('LW_ACCOUNT = ', <AdAccount> {
+    "id": "act_102055410480984",
+    "name": "MammothAdsAnalytics"
+})
+{"data":[{"date_start":"2017-07-02","date_stop":"2017-07-31","impressions":"4416","spend":"223.44","account_id":"102055410480984"}],"paging":{"cursors":{"before":"MAZDZD","after":"MAZDZD"}}}
+https://graph.facebook.com/v2.10/act_102055410480984/insights
+{"data":[{"id":"23842610966690422"}],"paging":{"cursors":{"before":"MjM4NDI2MTA5NjY2OTA0MjIZD","after":"MjM4NDI2MTA5NjY2OTA0MjIZD"}},"summary":{"total_count":1}}
+https://graph.facebook.com/v2.10/act_102055410480984/campaigns
+('Campaign ----', [<Campaign> {
+    "id": "23842610966690422"
+}])

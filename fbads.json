@@ -1,0 +1,119 @@
+{
+    "module_name": "fbads", 
+    "module_type": "web_analytics", 
+    "USER_INPUT_JSON": {
+        "capability": {
+            "ds_config_validation_mode": "AUTO", 
+            "preview_enabled": false, 
+            "minimum_schedule_frequency": 0, 
+            "config_validation_required": true, 
+            "schedule_type": "MOMENT"
+        }, 
+        "fields": {
+            "fbopt": {
+                "long_desc": "Reporting Level", 
+                "server_auto_suggest": true, 
+                "dependent_on": false, 
+                "key": "fbopt", 
+                "placeholder": "", 
+                "default_value": null, 
+                "server_validate": false, 
+                "pattern": null, 
+                "required": false, 
+                "short_desc": "Reporting Level", 
+                "label": "Reporting Level", 
+                "type": "SINGLE_SELECT_LIST"
+            },
+            "Campaigns": {
+                "long_desc": "Campaigns", 
+                "server_auto_suggest": false, 
+                "dependent_on": false, 
+                "key": "Campaigns", 
+	        "placeholder": "", 
+                "default_value": null, 
+                "server_validate": false, 
+                "pattern": null, 
+                "required": true, 
+                "short_desc": "Campaigns", 
+                "label": "Campaigns", 
+                "type": "SINGLE_SELECT_LIST"
+            },
+            "Campaignfields": {
+                "long_desc": "Please select the fields at Campaign Level", 
+                "server_auto_suggest": false, 
+                "dependent_on": false, 
+                "key": "Campaignfields", 
+	        "placeholder": "", 
+                "default_value": null, 
+                "server_validate": false, 
+                "pattern": null, 
+                "required": true, 
+                "short_desc": "Campaign Level Fields", 
+                "label": "Campaign Level Fields", 
+                "type": "MULTI_SELECT_LIST"
+            }
+
+        }, 
+        "ux": {
+            "attributes": {
+                "fbopt": {
+	               "items":[], 
+                    "ui_type": "", 
+                    "onChange": "augmentDsConfig", 
+                    "list_type": "DYNAMIC", 
+                    "size": null
+                },
+"Campaigns": {
+	               "items":[], 
+                    "ui_type": "", 
+                    "onChange": "", 
+                    "list_type": "DYNAMIC", 
+                    "size": null
+                },
+"Campaignfields": {
+	               "items":[], 
+                    "ui_type": "", 
+                    "onChange": "", 
+                    "list_type": "DYNAMIC", 
+                    "size": null
+                }
+            }, 
+            "edit_layout": [], 
+            "layout": [
+                {
+                    "width": {
+                        "value": "100", 
+                        "unit": "%"
+                    }, 
+                    "classes": "", 
+                    "type": "field", 
+                    "key": "fbopt"
+                },
+{
+                    "width": {
+                        "value": "100", 
+                        "unit": "%"
+                    }, 
+                    "classes": "", 
+                    "type": "field", 
+                    "key": "Campaigns"
+                },
+{
+                    "width": {
+                        "value": "100", 
+                        "unit": "%"
+                    }, 
+                    "classes": "", 
+                    "type": "field", 
+                    "key": "Campaignfields"
+                }
+
+            ]
+        }
+    }, 
+    "AUTH": {
+        "has_profiles": true, 
+        "type": "OAUTH2"
+    }, 
+    "module_code": "fbads"
+}
