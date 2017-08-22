@@ -8,17 +8,17 @@ import os
 import csv
 import const
 class FbGraph(object):
-    def __init__(self,i_access_token,i_api_config):
+    def __init__(self,access_token,apid,ap_secret):
         #initiate the session and update the headers
         self.client = requests.Session()
         self.client.headers.update({
-              "Authorization": "Bearer %s" % i_access_token,
+              "Authorization": "Bearer %s" % access_token,
             "Content-Type": "application/json"
           })
-        self.access_token = i_access_token
-        self.apid = i_api_config.get("client_id")
-        self.ap_secret = i_api_config.get("client_secret")
-        self.adsapi = fbapi.FacebookAdsApi.init(app_id= self.apid, app_secret = self.ap_secret, api_version='v2.10', access_token = self.access_token)
+        self.access_token = access_token
+        self.apid = apid
+        self.ap_secret = ap_secret
+        self.adsapi = fbapi.FacebookAdsApi.init(app_id= apid, app_secret = ap_secret, api_version='v2.10', access_token= self.access_token)
         
     def get_user_name(self):
         lv_url = 'https://graph.facebook.com/v2.10/me'
@@ -51,20 +51,10 @@ class FbAdaccount(object):
     def __init__(self,adsapi,adaccount_id):
         self.adacc = AdAccount(fbid=adaccount_id,api=adsapi)
     def get_campaigns(self):
-        lt_fields = ['id','name','objective','buying_type']
+        lt_fields = ['id','name']
         self.campaigns = self.adacc.get_campaigns(fields=lt_fields)
-        
         return self.campaigns
-    def filter_campaign(self,i_objective=None,i_buyingtype=None):
-        lt_filtercampobj = []
-        lt_filtercamp = []
-        for lw_camp in self.campaigns:
-            if lw_camp.get('objective') in i_objective:
-                lt_filtercampobj.append(lw_camp)
-        for lw_camp in lt_filtercamp:
-            if lw_camp.get('buying_type') in i_buyingtype:
-                lt_filtercamp.append(lw_camp)
-        return lt_filtercamp
+
     def get_insights(self):
         lt_insights = self.adacc.get_insights()
         return lt_insights
@@ -81,6 +71,11 @@ class FbCampaign(object):
         #get the breakdown values
         lt_breakdown = []
         lt_breakdown = i_params.get(const.CONFIG_FIELDS.FBBREAKDOWN)
+        # get the hourly breakdown values separately and then add it.
+        # need to confirm if the breakdown and hourly breakdown is not possible togther ?????????????????
+        lt_brkhour = []
+        lt_brkhour = i_params.get(const.CONFIG_FIELDS.FBBREAKDOWNHR)
+        lt_breakdown = lt_breakdown + lt_brkhour
         lt_parameters = {
             'time_range': {'since':i_params.get('since'),'until':i_params.get('until')},                        
             'filtering': [
@@ -112,7 +107,7 @@ class FbCampaign(object):
                         #print('List entries are ----------',lt_list)
                         for lw_list in lt_list:
                             #print('List entry-----------', lw_list)
-                            lv_fieldname = lw_fields + ':' + lw_list.get('action_type')
+                            lv_fieldname = lw_fields + '_' + lw_list.get('action_type')
                             #print(lw_fields,'--------Field name in list -----------',lv_fieldname)
                             lv_fieldvalue = lw_list.get('value')
                             lw_row[lv_fieldname] = lv_fieldvalue
@@ -130,24 +125,6 @@ class FbCampaign(object):
                                
     
 def get_fields(i_group):
-    print('Group --------------------------------',i_group)
-    print('Infields -------------------------', const.gt_infields)
-    lt_outdisplay = []
-    lt_fields = const.gt_infields.get(i_group)
-    for lv_key,lw_infields in lt_fields.iteritems():
-        if len(lw_infields) == 0:      
-            
-            lt_outdisplay.append(lv_key)
-        else:
-            for lw_row in lw_infields:
-                lt_outdisplay.append(lv_key + ':' + lw_row)
-    
-    return lt_outdisplay
-def get_field_description(i_fname):
-
-    return const.gt_fielddesc.get(i_fname)
-
-    '''
     cwd = os.path.dirname(os.path.realpath(__file__))
     lv_filepath = os.path.join(cwd, 'fieldgroups.csv')
     print('File to be opened is -----------------------',lv_filepath)
@@ -184,7 +161,7 @@ def get_field_description(i_fname):
     
     return lt_fields
 
-     
+'''        
 def get_formattedfields(i_file):
     cwd = os.path.dirname(os.path.realpath(__file__))
     lv_file = os.path.join(cwd, i_file)

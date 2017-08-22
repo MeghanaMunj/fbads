@@ -4,9 +4,8 @@ import const
 import sdk.const as sdkconst
 from threep.base import DataYielder
 import facebookapi
-import csv
-import datetime
 log = logging
+import csv
 
 class fbadsDataYielder(DataYielder):
     def __init__(self, *args, **kwargs):
@@ -39,49 +38,39 @@ class fbadsDataYielder(DataYielder):
             TODO: return dict format to be standardized
         """
         print('*****************DS config data *******************')
-        #print(self.ds_config)
-        #print(self.identity_config)
+        print(self.ds_config)
+        print(self.identity_config)
         print('Start date ---------',self.start_date)
         print('End date ---------', self.end_date)
-        
         lv_access_token = self.identity_config.get('access_token')
         lv_fbaccount = self.ds_config.get('fbaccount')
         lv_fbopt = self.ds_config.get('fbopt')
-        lv_fbgroup = self.ds_config.get(const.CONFIG_FIELDS.FBCOLUMNGROUP)
         
-        
-        lv_fbads = facebookapi.FbGraph(lv_access_token,self.api_config)
+        lv_apid = const.APP_DETAILS.apid
+        lv_fbads = facebookapi.FbGraph(lv_access_token,lv_apid,const.APP_DETAILS.secret)
         self.adsapi = lv_fbads.get_adsapi()
-        # get the fields for selecteg group + type of object(campaign,Adset,Ad) + settings (default fields)
-        lt_fields = self.get_selected_fields(const.CONFIG_FIELDS.FBFieldList)
-        
-
+        #get the selected fields 
+        i = 1
+        lv_flag = True
+        lt_fields = []
+        while lv_flag == True:
+            lv_fieldname = 'selected_field' + str(i)
+            if lv_fieldname in self.ds_config:
+                lt_fields.append(self.ds_config.get(lv_fieldname))
+                i = i + 1
+            else:
+                lv_flag = False
         lt_insights = []    
         lt_fout = []
-        lt_params = {}
-        lt_params[const.CONFIG_FIELDS.FBBREAKDOWN] = self.get_param(const.CONFIG_FIELDS.FBBREAKDOWN)
-        lt_params[const.CONFIG_FIELDS.FBObjective] = self.get_param(const.CONFIG_FIELDS.FBObjective)
-        lt_params[const.CONFIG_FIELDS.FBBuyingType] = self.get_param(const.CONFIG_FIELDS.FBBuyingType)
-        lt_params['since'] = datetime.datetime.fromtimestamp(self.start_date[0]).date().strftime('%Y-%m-%d')
-        lt_params['until'] = datetime.datetime.fromtimestamp(self.end_date).date().strftime('%Y-%m-%d')
-        print('Until Date is --------------------------------------------------------',lt_params['until'])
-        if lv_fbopt == 'Adset':
-            lt_params[const.CONFIG_FIELDS.FBPageType] = self.ds_config.get(const.CONFIG_FIELDS.FBPageType)
-        
         if lv_fbopt == 'Campaign':
             lt_campaignid = self.ds_config.get('Campaigns')  
-            for lw_campaignid in lt_campaignid:
-                #get instance of the campaign
+            for lw_campaignid in lt_campaignid:                            
                 lv_campaign = facebookapi.FbCampaign(lw_campaignid,self.adsapi)
                 lt_ftemp = []
                 lt_ins = []
-                #get insights for the campaign 
-                # this method returns the insights and the list of fields fetched for that call 
-                lt_ins,lt_ftemp = lv_campaign.get_insights(i_fields=lt_fields,i_params = lt_params)
-                #collect insights in one final table 
+                lt_ins,lt_ftemp = lv_campaign.get_insights(lt_fields,['gender','days_1'])
                 for lw_ins in lt_ins:
                     lt_insights.append(lw_ins)
-                #field names should be collected for each call as the fields list might differ in insights fetched.
                 for lw_ftemp in lt_ftemp:
                     if not(lw_ftemp in lt_fout):
                         lt_fout.append(lw_ftemp)
@@ -128,22 +117,3 @@ class fbadsDataYielder(DataYielder):
                }
         """
         return {}
-    def get_param(self,i_name):
-        lt_output = []
-        lt_output = self.ds_config.get(i_name)
-        return lt_output
-    def get_selected_fields(self, i_name):
-        # get the selecte feilds from ds config 
-        lt_screenfield = self.get_param(i_name)
-        lt_fields = []
-        # add the default fields 
-        lt_fields = lt_fields + const.gt_default
-        # for each selected field 
-        for lw_screenfield in lt_screenfield:
-            lv_pos = lw_screenfield.find(':')
-            # if colon is there then get the value before colon eg actions or cost_per_action_type 
-            if lv_pos != -1:
-                lt_fields.append(lw_screenfield[:lv_pos])
-            else:
-                lt_fields.append(lw_screenfield)
-        return lt_fields

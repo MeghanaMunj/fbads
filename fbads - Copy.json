@@ -7,7 +7,7 @@
 			"preview_enabled": false,
 			"minimum_schedule_frequency": 0,
 			"config_validation_required": true,
-			"schedule_type": "PERIOD"
+			"schedule_type": "MOMENT"
 		},
 		"fields": {
 			"fbopt": {
@@ -23,20 +23,6 @@
 				"short_desc": "Reporting Level",
 				"label": "Reporting Level",
 				"type": "SINGLE_SELECT_LIST"
-			},
-			"BuyingType": {
-				"long_desc": "Buying Type",
-				"server_auto_suggest": false,
-				"dependent_on": false,
-				"key": "BuyingType",
-				"placeholder": "",
-				"default_value": null,
-				"server_validate": false,
-				"pattern": null,
-				"required": true,
-				"short_desc": "Buying Type",
-				"label": "Buying Type",
-				"type": "MULTI_SELECT_LIST"
 			},
 			"Campaigns": {
 				"long_desc": "Campaigns",
@@ -66,19 +52,6 @@
 				"label": "Column grouping",
 				"type": "SINGLE_SELECT_LIST"
 			},
-			"FieldList": {
-				"long_desc": "Please selecet the List of Columns to be downloaded",
-				"server_auto_suggest": false,
-				"dependent_on": false,
-				"key": "FieldList",
-				"placeholder": "",
-				"server_validate": false,
-				"pattern": null,
-				"required": true,
-				"short_desc": "List of Columns",
-				"label": "List of Columns",
-				"type": "MULTI_SELECT_LIST"
-			},
 			"Objective": {
 				"long_desc": "Objective",
 				"server_auto_suggest": false,
@@ -101,8 +74,8 @@
 				"server_validate": false,
 				"pattern": null,
 				"required": true,
-				"short_desc": "Delivery Info Ignore As of now---",
-				"label": "Delivery Info Ignore As of now",
+				"short_desc": "Delivery Info",
+				"label": "Delivery Info",
 				"type": "MULTI_SELECT_LIST"
 			},
 			"Breakdown": {
@@ -118,26 +91,16 @@
 				"short_desc": "Breakdown",
 				"label": "Breakdown",
 				"type": "MULTI_SELECT_LIST"
-			},
-			"PageType": {
-				"long_desc": "AdSet Placement Page Type",
-				"server_auto_suggest": false,
-				"dependent_on": false,
-				"key": "PageType",
-				"placeholder": "",
-				"default_value": null,
-				"server_validate": false,
-				"pattern": null,
-				"required": true,
-				"short_desc": "PageType",
-				"label": "PageType",
-				"type": "MULTI_SELECT_LIST"
 			}
 		},
 		"ux": {
 			"attributes": {
 				"fbopt": {
 					"items": [
+						{
+							"name": "Account",
+							"value": "Account"
+						},
 						{
 							"name": "Campaign",
 							"value": "Campaign"
@@ -156,65 +119,7 @@
 					"list_type": "STATIC",
 					"size": 4
 				},
-				"PageType": {
-					"items": [
-						{
-							"name": "Desktop Feed",
-							"value": "desktopfeed"
-						},
-						{
-							"name": "Mobile Feed",
-							"value": "mobilefeed"
-						},
-						{
-							"name": "Right Column",
-							"value": "rightcolumn"
-						},
-						{
-							"name": "Instagram Stream",
-							"value": "instagramstream"
-						},
-						{
-							"name": "Instagram Story",
-							"value": "instagramstory"
-						}
-					],
-					"ui_type": "",
-					"onChange": "",
-					"list_type": "STATIC",
-					"size": 4
-				},
-				"BuyingType": {
-					"items": [
-						{
-							"name": "Auction",
-							"value": "AUCTION",
-							"selected": true
-						},
-						{
-							"name": "Fixed Price",
-							"value": "FIXED_PRICE",
-							"selected": true
-						},
-						{
-							"name": "Reserved",
-							"value": "RESERVED",
-							"selected": true
-						}
-					],
-					"ui_type": "",
-					"onChange": "",
-					"list_type": "STATIC",
-					"size": 4
-				},
 				"Campaigns": {
-					"items": [],
-					"ui_type": "",
-					"onChange": "",
-					"list_type": "DYNAMIC",
-					"size": null
-				},
-				"FieldList": {
 					"items": [],
 					"ui_type": "",
 					"onChange": "",
@@ -258,10 +163,6 @@
 						{
 							"name": "Messenger Engagement",
 							"value": "MessengerEngagement"
-						},
-						{
-							"name": "All",
-							"value": "All"
 						}
 					],
 					"ui_type": "",
@@ -273,98 +174,76 @@
 					"items": [
 						{
 							"name": "Canvas App Engagement",
-							"value": "CANVAS_APP_ENGAGEMENT",
-							"selected": true
+							"value": "CANVAS_APP_ENGAGEMENT"
 						},
 						{
 							"name": "Mobile App Engagement",
-							"value": "MOBILE_APP_ENGAGEMENT",
-							"selected": true
+							"value": "MOBILE_APP_ENGAGEMENT"
 						},
 						{
 							"name": "App Installs",
-							"value": "APP_INSTALLS",
-							"selected": true
+							"value": "APP_INSTALLS"
 						},
 						{
 							"name": "Canvas App Installs",
-							"value": "CANVAS_APP_INSTALLS",
-							"selected": true
+							"value": "CANVAS_APP_INSTALLS"
 						},
 						{
 							"name": "Mobile App Installs",
-							"value": "MOBILE_APP_INSTALLS",
-							"selected": true
+							"value": "MOBILE_APP_INSTALLS"
 						},
 						{
 							"name": "Brand Awareness",
-							"value": "BRAND_AWARENESS",
-							"selected": true
+							"value": "BRAND_AWARENESS"
 						},
 						{
 							"name": "Conversions",
-							"value": "CONVERSIONS",
-							"selected": true
+							"value": "CONVERSIONS"
 						},
 						{
 							"name": "Event Responses",
-							"value": "EVENT_RESPONSES",
-							"selected": true
+							"value": "EVENT_RESPONSES"
 						},
 						{
 							"name": "Lead Generation",
-							"value": "LEAD_GENERATION",
-							"selected": true
+							"value": "LEAD_GENERATION"
 						},
 						{
 							"name": "Local Awanresss",
-							"value": "LOCAL_AWARENESS",
-							"selected": true
+							"value": "LOCAL_AWARENESS"
 						},
 						{
 							"name": "Offer Claims",
-							"value": "OFFER_CLAIMS",
-							"selected": true
+							"value": "OFFER_CLAIMS"
 						},
 						{
 							"name": "Page Likes",
-							"value": "PAGE_LIKES",
-							"selected": true
+							"value": "PAGE_LIKES"
 						},
 						{
 							"name": "Post Engagement",
-							"value": "POST_ENGAGEMENT",
-							"selected": true
+							"value": "POST_ENGAGEMENT"
 						},
 						{
 							"name": "Canvas App Installs",
-							"value": "CANVAS_APP_INSTALLS",
-							"selected": true
+							"value": "CANVAS_APP_INSTALLS"
 						},
 						{
 							"name": "Product Catalog Sales",
-							"value": "PRODUCT_CATALOG_SALES",
-							"selected": true
+							"value": "PRODUCT_CATALOG_SALES"
 						},
 						{
 							"name": "Reach",
 							"value": "REACH",
-							"selected": true
+							"selected":true
 						},
 						{
 							"name": "Store Visits",
-							"value": "STORE_VISITS",
-							"selected": true
+							"value": "STORE_VISITS"
 						},
 						{
 							"name": "Link Clicks",
-							"value": "LINK_CLICKS",
-							"selected": true
-						},
-						{
-							"name": "Video Views",
-							"value": "VIDEO_VIEWS",
-							"selected": true
+							"value": "LINK_CLICKS"
 						}
 					],
 					"ui_type": "",
@@ -377,12 +256,12 @@
 						{
 							"name": "Active",
 							"value": "active",
-							"selected": true
+							"selected":true
 						},
 						{
 							"name": "Inactive",
 							"value": "inactive",
-							"selected": true
+							"selected":true
 						},
 						{
 							"name": "Limited",
@@ -443,11 +322,19 @@
 						{
 							"name": "gender",
 							"value": "gender",
-							"selected": true
+							"selected":true
 						},
 						{
 							"name": "Frequency Value",
 							"value": "frequency_value"
+						},
+						{
+							"name": "Hourly Stats Agg by Advertiser Time zone",
+							"value": "hourly_stats_aggregated_by_advertiser_time_zone"
+						},
+						{
+							"name": "Hourly Stats Agg by Audience Time zone",
+							"value": "hourly_stats_aggregated_by_audience_time_zone"
 						},
 						{
 							"name": "Impression Device",
@@ -476,14 +363,6 @@
 						{
 							"name": "Region",
 							"value": "region"
-						},
-						{
-							"name": "Hourly Stats Agg by Advertiser Time zone",
-							"value": "hourly_stats_aggregated_by_advertiser_time_zone"
-						},
-						{
-							"name": "Hourly Stats Agg by Audience Time zone",
-							"value": "hourly_stats_aggregated_by_audience_time_zone"
 						}
 					],
 					"ui_type": "",
@@ -491,6 +370,7 @@
 					"list_type": "STATIC",
 					"size": 8
 				}
+
 			}
 		},
 		"edit_layout": [],
@@ -513,69 +393,42 @@
 				"type": "field",
 				"key": "Campaign"
 			},
-			{
-				"width": {
-					"value": "100",
-					"unit": "%"
+				{
+					"width": {
+						"value": "100",
+						"unit": "%"
+					},
+					"classes": "",
+					"type": "field",
+					"key": "Columngroup"
 				},
-				"classes": "",
-				"type": "field",
-				"key": "Columngroup"
-			},
-			{
-				"width": {
-					"value": "100",
-					"unit": "%"
+				{
+					"width": {
+						"value": "100",
+						"unit": "%"
+					},
+					"classes": "",
+					"type": "field",
+					"key": "Objective"
 				},
-				"classes": "",
-				"type": "field",
-				"key": "FieldList"
-			},
-			{
-				"width": {
-					"value": "100",
-					"unit": "%"
+				{
+					"width": {
+						"value": "100",
+						"unit": "%"
+					},
+					"classes": "",
+					"type": "field",
+					"key": "DeliveryInfo"
 				},
-				"classes": "",
-				"type": "field",
-				"key": "Objective"
-			},
-			{
-				"width": {
-					"value": "100",
-					"unit": "%"
-				},
-				"classes": "",
-				"type": "field",
-				"key": "DeliveryInfo"
-			},
-			{
-				"width": {
-					"value": "100",
-					"unit": "%"
-				},
-				"classes": "",
-				"type": "field",
-				"key": "Breakdown"
-			},
-			{
-				"width": {
-					"value": "100",
-					"unit": "%"
-				},
-				"classes": "",
-				"type": "field",
-				"key": "BuyingType"
-			},
-			{
-				"width": {
-					"value": "100",
-					"unit": "%"
-				},
-				"classes": "",
-				"type": "field",
-				"key": "PageType"
-			}
+				{
+					"width": {
+						"value": "100",
+						"unit": "%"
+					},
+					"classes": "",
+					"type": "field",
+					"key": "Breakdown"
+				}
 		]
 	},
 	"AUTH": {
