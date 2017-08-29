@@ -52,6 +52,20 @@
 				"label": "Campaigns",
 				"type": "MULTI_SELECT_LIST"
 			},
+			"Adsets": {
+				"long_desc": "Adsets",
+				"server_auto_suggest": false,
+				"dependent_on": false,
+				"key": "Adsets",
+				"placeholder": "",
+				"default_value": null,
+				"server_validate": false,
+				"pattern": null,
+				"required": true,
+				"short_desc": "Adsets",
+				"label": "Adsets",
+				"type": "MULTI_SELECT_LIST"
+			},
 			"Columngroup": {
 				"long_desc": "Please select the Column Grouping",
 				"server_auto_suggest": false,
@@ -208,6 +222,13 @@
 					"size": 4
 				},
 				"Campaigns": {
+					"items": [],
+					"ui_type": "",
+					"onChange": "",
+					"list_type": "DYNAMIC",
+					"size": null
+				},
+				"Adsets": {
 					"items": [],
 					"ui_type": "",
 					"onChange": "",
@@ -512,6 +533,15 @@
 				"classes": "",
 				"type": "field",
 				"key": "Campaign"
+			},
+			{
+				"width": {
+					"value": "100",
+					"unit": "%"
+				},
+				"classes": "",
+				"type": "field",
+				"key": "Adsets"
 			},
 			{
 				"width": {

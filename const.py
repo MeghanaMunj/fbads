@@ -20,6 +20,7 @@ class CONFIG_FIELDS:
     FBBuyingType = 'BuyingType'
     FBPageType = "PageType"
     FBFieldList = "FieldList"
+    FBAdset = "Adsets"
     pass
 
 
@@ -29,7 +30,9 @@ gt_infields = { "Performance": { "actions":['post_engagement'] ,
                                  "reach": [],
                                  'cost_per_action_type' : ['post_engagement'],
                                  'spend' : [],
-                                 'total_unique_actions' : []
+                                 'total_unique_actions' : [],
+                                 'impressions' : [],
+                                 'frequency' : [] 
                                  },
                 "Delivery" : { 
                     'reach' : [] ,                               
@@ -141,6 +144,7 @@ gt_fielddesc = {
     'actions:like' :   'Results',
     'reach' :   'Reach',
     'frequency' :   'Frequency',
+    'impressions' : 'Impressions',
     'cost_per_action_type:like' :   'Cost per result',
     'ctr' :   'CTR All',
     'cpc' :   'CPC All',
@@ -160,5 +164,6 @@ gt_fielddesc = {
     'actions:post' :   'Post Shares',
     'actions:like' :   'Page Likes',
     'cost_per_unique_click' :   'Cost per Unique Click (All)'
+    
                 
                 }

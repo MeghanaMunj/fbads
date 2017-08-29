@@ -45,7 +45,7 @@ class fbadsDataYielder(DataYielder):
         print('End date ---------', self.end_date)
         
         lv_access_token = self.identity_config.get('access_token')
-        lv_fbaccount = self.ds_config.get('fbaccount')
+        lv_fbaccount = self.ds_config.get(const.CONFIG_FIELDS.FBACCOUNT)
         lv_fbopt = self.ds_config.get('fbopt')
         lv_fbgroup = self.ds_config.get(const.CONFIG_FIELDS.FBCOLUMNGROUP)
         
@@ -64,20 +64,45 @@ class fbadsDataYielder(DataYielder):
         lt_params[const.CONFIG_FIELDS.FBBuyingType] = self.get_param(const.CONFIG_FIELDS.FBBuyingType)
         lt_params['since'] = datetime.datetime.fromtimestamp(self.start_date[0]).date().strftime('%Y-%m-%d')
         lt_params['until'] = datetime.datetime.fromtimestamp(self.end_date).date().strftime('%Y-%m-%d')
+        lv_adaccountid = self.ds_config.get(const.CONFIG_FIELDS.FBACCOUNT)
         print('Until Date is --------------------------------------------------------',lt_params['until'])
-        if lv_fbopt == 'Adset':
+        print('Since date is ---------------------------', lt_params['since'])
+        lv_adaccount = facebookapi.FbAdaccount(self.adsapi,lv_adaccountid)
+        print(lv_fbopt,'------------------------')
+        if lv_fbopt == 'AdSet':
             lt_params[const.CONFIG_FIELDS.FBPageType] = self.ds_config.get(const.CONFIG_FIELDS.FBPageType)
-        
+            lt_adsetid = self.ds_config.get(const.CONFIG_FIELDS.FBAdset)
+            #print("Adset ids are ------------------",lt_adsetid)
+            lv_adaccount.get_adsets()
+            for lw_adsetid in lt_adsetid:
+                lv_adaccount.adsets.get
+                lw_adset = lv_adaccount.adsets.get(lw_adsetid)
+                lv_adset = facebookapi.FBAdset(lw_adsetid,self.adsapi,lw_adset)
+                lv_adset.get_insights(i_fields=lt_fields,i_params=lt_params)
+                '''
+                lt_ins, lt_ftemp = lv_adset.get_insight_formatted()
+                #collect insights in one final table 
+                for lw_ins in lt_ins:
+                    lt_insights.append(lw_ins)
+                #field names should be collected for each call as the fields list might differ in insights fetched.
+                for lw_ftemp in lt_ftemp:
+                    if not(lw_ftemp in lt_fout):
+                        lt_fout.append(lw_ftemp)'''
         if lv_fbopt == 'Campaign':
             lt_campaignid = self.ds_config.get('Campaigns')  
+            lv_adaccount.get_campaigns()
+            
+            print('Campaigns are ------------------------',lt_campaignid)
             for lw_campaignid in lt_campaignid:
+                lw_campaign = lv_adaccount.campaigns.get(lw_campaignid)
                 #get instance of the campaign
-                lv_campaign = facebookapi.FbCampaign(lw_campaignid,self.adsapi)
+                lv_campaign = facebookapi.FbCampaign(lw_campaignid,self.adsapi,lw_campaign)
                 lt_ftemp = []
                 lt_ins = []
                 #get insights for the campaign 
                 # this method returns the insights and the list of fields fetched for that call 
-                lt_ins,lt_ftemp = lv_campaign.get_insights(i_fields=lt_fields,i_params = lt_params)
+                lv_campaign.get_insights(i_fields=lt_fields,i_params = lt_params)
+                lt_ins,lt_ftemp = lv_campaign.get_insight_formatted()
                 #collect insights in one final table 
                 for lw_ins in lt_ins:
                     lt_insights.append(lw_ins)
@@ -109,6 +134,11 @@ class fbadsDataYielder(DataYielder):
                                                        identity_key)
 
         self.ds_config = self.storage_handle.get(identity_key, ds_config_key)
+        #self.campaign = self.storage_handle.get('FBCampaigns','FBCampaign' + self.ds_config.get(const.CONFIG_FIELDS.FBACCOUNT))
+        lv_since = datetime.datetime.fromtimestamp(self.start_date[0]).date().strftime('%Y-%m-%d')
+        lv_until = datetime.datetime.fromtimestamp(self.end_date).date().strftime('%Y-%m-%d')
+        print('Since ------------------------------', lv_since)
+        print('Until ---------------------------------', lv_until)
 
     def reset(self):
         """

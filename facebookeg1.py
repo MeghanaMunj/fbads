@@ -10,6 +10,7 @@ from selenium import webdriver
 import time
 from facebookads.adobjects.adaccount import AdAccount
 from facebookads.adobjects.adsinsights import AdsInsights
+from facebookads.adobjects.adset import AdSet
 from facebookads.adobjects import user
 
 import urlparse
@@ -104,13 +105,20 @@ for lw_account in lt_accounts:
     print('LW_ACCOUNT = ', lw_account)
     lv_accountid = lw_account.get('id')
     i = i + 1
-    
     lv_adacc = AdAccount(fbid=lv_accountid,api=lv_adsapi)
+    if lv_accountid == 'act_102055410480984':
+        
     #lt_insights = lv_adacc.get_insights()
     #print('Insights are -------------------',lt_insights)
-    lt_campaigns = lv_adacc.get_campaigns(fields=['id','name','objective','buying_type'])
-    lt_emptylist = []
-    print('Campaign ----', lt_campaigns)
+        lt_campaigns = lv_adacc.get_campaigns(fields=['id','name','objective','buying_type'])
+        lt_emptylist = []
+        print('Campaign ----', lt_campaigns)
+        lt_adsets = lv_adacc.get_ad_sets(fields=['id','name'])
+        for lw_adsets in lt_adsets:
+            lv_adset = AdSet(fbid=lw_adsets.get('id'), api=lv_adsapi)
+            lt_insights = lv_adset.get_insights()
+            print('Insights for Adset ---',lw_adsets.get('id'),'are -------')
+            print(lt_insights)
     '''
     for lw_campaign in lt_campaigns:
         lv_campid = lw_campaign.get('id')

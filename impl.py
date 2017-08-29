@@ -4,6 +4,7 @@ import os
 import const
 import json
 import  logging as log
+import simplestorage.keystorage as simp 
 import sdk.const as sdkconst
 from sdk.const import COMMON_CONFIG_FIELDS, \
     COMMON_IDENTITY_FIELDS, NAME, VALUE
@@ -20,6 +21,7 @@ from facebookads.adobjects.adaccount import AdAccount
 from facebookads.adobjects.adsinsights import AdsInsights
 from facebookads.adobjects import user
 import facebookapi
+import pydash
 # End of import statements
 
 
@@ -37,6 +39,7 @@ class fbadsManager(ThreePBase):
         super(fbadsManager, self).__init__(storage_handle, api_config)
 
         self.adsapi = None
+        
     def get_identity_spec(self, auth_spec):
         """
            This function is called to render the form on the authentication screen. It provides the render specification to
@@ -188,16 +191,33 @@ class fbadsManager(ThreePBase):
         items = []
         lv_adaccountid = params.get('profile')
         lv_adaccount = facebookapi.FbAdaccount(self.adsapi,lv_adaccountid)
-        lt_campaign = lv_adaccount.get_campaigns()
-        for lw_campaign in lt_campaign:
+        lv_adaccount.get_campaign_list()
+        
+        for lw_camp in lv_adaccount.camplist:
             items.append({"selectable": False,
                               'selected': True,
-                                  "name": lw_campaign.get('name') + ' - ' + lw_campaign.get('id') ,
-                                  'value': lw_campaign.get('id')
+                                  "name": lw_camp.get('name') + ' - ' + lw_camp.get('id') ,
+                                  'value': lw_camp.get('id')
                                   })            
-        
         ds_config_spec['ux']['attributes'][const.CONFIG_FIELDS.FBCAMPAIGN]['items'] = items
         
+        # do get and check if its existing, if yes update
+        # else create using store_json
+        #self.storage_handle.store_json(lt_campaign,'FBCampaigns','FBCampaign' + lv_adaccountid)
+        
+        
+        
+        items = []
+        lv_adaccount.get_adset_list()
+        for lw_adset in lv_adaccount.adsetlist:
+            
+            items.append({"selectable": False,
+                              'selected': True,
+                                  "name": lw_adset.get('name') + ' - ' + lw_adset.get('id'),
+                                  'value': lw_adset.get('id')
+                                  })            
+        ds_config_spec['ux']['attributes'][const.CONFIG_FIELDS.FBAdset]['items'] = items
+            
         #get the column group to be displayed 
         #lv_columngroup = params.get(const.CONFIG_FIELDS.FBCOLUMNGROUP)
         lv_columgroup = ds_config_spec.get('fields').get(const.CONFIG_FIELDS.FBCOLUMNGROUP).get('default_value')
@@ -242,6 +262,7 @@ class fbadsManager(ThreePBase):
         ds_config[CONFIG_FIELDS.FBBuyingType] = params.get(CONFIG_FIELDS.FBBuyingType)
         ds_config[CONFIG_FIELDS.FBPageType] = params.get(CONFIG_FIELDS.FBPageType)
         ds_config[CONFIG_FIELDS.FBFieldList] = params.get(CONFIG_FIELDS.FBFieldList)
+        ds_config[CONFIG_FIELDS.FBAdset] = params.get(CONFIG_FIELDS.FBAdset)
         
         #print('DS Config values is ---------------', ds_config)    
         return ds_config
