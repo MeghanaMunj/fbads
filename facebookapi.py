@@ -73,6 +73,8 @@ class FbAdaccount(object):
         self.campaigns = {}
         print('result from method ----', lt_campaign)
         #self.campids = []
+        #pydash.key_by(lt_campaign, 'id')
+        
         for lw_campaign in lt_campaign:
             print('-------',lw_campaign)
             self.campaigns[lw_campaign['id']] = lw_campaign
