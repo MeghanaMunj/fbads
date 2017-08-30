@@ -131,7 +131,7 @@
 				"required": true,
 				"short_desc": "Breakdown",
 				"label": "Breakdown",
-				"type": "MULTI_SELECT_LIST"
+				"type": "SINGLE_SELECT_LIST"
 			},
 			"PageType": {
 				"long_desc": "AdSet Placement Page Type",
