@@ -5,6 +5,7 @@ from facebookads.adobjects.adsinsights import AdsInsights
 from facebookads.adobjects import user
 from facebookads.adobjects.campaign import Campaign
 import os 
+import pydash
 class FbGraph(object):
     def __init__(self,access_token,apid,ap_secret):
         #initiate the session and update the headers
@@ -75,7 +76,10 @@ class FbCampaign(object):
         lt_output = []
         for lw_insights in self.insights:
             print('FB insights Raw --------------***************',lw_insights)
+            print(pydash.collections.map_(lw_insights))
             lw_row = {}
+            lw_flatrow = {}
+            '''
             for lw_fields, lv_value in lw_insights.iteritems():
                 #print('Field ----------',lw_fields,'Value --------------------',lv_value)
                 if lw_fields in i_breakdown:
@@ -90,7 +94,7 @@ class FbCampaign(object):
                         #print('List entries are ----------',lt_list)
                         for lw_list in lt_list:
                             #print('List entry-----------', lw_list)
-                            lv_fieldname = lw_fields + '_' + lw_list.get('action_type')
+                            lv_fieldname = lw_fields + ':' + lw_list.get('action_type')
                             #print(lw_fields,'--------Field name in list -----------',lv_fieldname)
                             lv_fieldvalue = lw_list.get('value')
                             lw_row[lv_fieldname] = lv_fieldvalue
@@ -103,7 +107,7 @@ class FbCampaign(object):
                     
             lt_output.append(lw_row)
             #print('Row ------------------',lw_row)
-        
+        '''
         return lt_output,lt_fields
                                
     
