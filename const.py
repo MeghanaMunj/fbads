@@ -21,6 +21,7 @@ class CONFIG_FIELDS:
     FBPageType = "PageType"
     FBFieldList = "FieldList"
     FBAdset = "Adsets"
+    FBAds = "Ads"
     pass
 
 

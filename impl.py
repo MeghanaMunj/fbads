@@ -225,6 +225,19 @@ class fbadsManager(ThreePBase):
                           })
         ds_config_spec['ux']['attributes'][const.CONFIG_FIELDS.FBAdset][
             'items'] = items
+        
+        ###Ads list 
+        items = []
+        lv_adaccount.get_ads_list()
+        for lw_ads in lv_adaccount.adslist:
+            items.append({"selectable": False,
+                          'selected': True,
+                          "name": lw_ads.get('name') + ' - ' + lw_ads.get(
+                              'id'),
+                          'value': lw_ads.get('id')
+                          })
+        ds_config_spec['ux']['attributes'][const.CONFIG_FIELDS.FBAds][
+            'items'] = items
 
         # get the column group to be displayed
         # lv_columngroup = params.get(const.CONFIG_FIELDS.FBCOLUMNGROUP)

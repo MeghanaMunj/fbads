@@ -40,55 +40,70 @@ class fbadsDataYielder(DataYielder):
             :return: dict object mentioning csv download status, success/failure
             TODO: return dict format to be standardized
         """
-        print('*****************DS config data *******************')
-        # print(self.ds_config)
-        # print(self.identity_config)
-        print('Start date ---------', self.start_date)
-        print('End date ---------', self.end_date)
-        
+        # get the feilds from identity config and ds config 
         lv_access_token = self.identity_config.get('access_token')
         lv_fbaccount = self.ds_config.get(const.CONFIG_FIELDS.FBACCOUNT)
-        lv_fbopt = self.ds_config.get('fbopt')
-        lv_fbgroup = self.ds_config.get(const.CONFIG_FIELDS.FBCOLUMNGROUP)
-        
-        lv_fbads = facebookapi.FbGraph(lv_access_token, self.api_config)
-        self.adsapi = lv_fbads.get_adsapi()
-        # get the fields for selecteg group + type of object(campaign,Adset,Ad) + settings (default fields)
+        lv_fbopt = self.ds_config.get(const.CONFIG_FIELDS.FBOPT)
+        lv_fbgroup = self.ds_config.get(const.CONFIG_FIELDS.FBCOLUMNGROUP)        
         lt_fields = self.get_selected_fields(const.CONFIG_FIELDS.FBFieldList)
+        lv_adaccountid = self.ds_config.get(const.CONFIG_FIELDS.FBACCOUNT)
         
-        lt_insights = []
-        lt_fout = []
+        #initialize the parameters to call the get_insights method 
         lt_params = {}
         lt_params[const.CONFIG_FIELDS.FBBREAKDOWN] = self.get_param(
             const.CONFIG_FIELDS.FBBREAKDOWN)
-        lt_params[const.CONFIG_FIELDS.FBObjective] = self.get_param(
-            const.CONFIG_FIELDS.FBObjective)
-        lt_params[const.CONFIG_FIELDS.FBBuyingType] = self.get_param(
-            const.CONFIG_FIELDS.FBBuyingType)
         lt_params['since'] = datetime.datetime.fromtimestamp(
             self.start_date[0]).date().strftime('%Y-%m-%d')
         lt_params['until'] = datetime.datetime.fromtimestamp(
             self.end_date).date().strftime('%Y-%m-%d')
-        lv_adaccountid = self.ds_config.get(const.CONFIG_FIELDS.FBACCOUNT)
-        print(
-        'Until Date is --------------------------------------------------------',
-        lt_params['until'])
-        print('Since date is ---------------------------', lt_params['since'])
+        
+        #initialize the adsapi and get instance of the FBAccount 
+        lv_fbads = facebookapi.FbGraph(lv_access_token, self.api_config)
+        self.adsapi = lv_fbads.get_adsapi()
         lv_adaccount = facebookapi.FbAdaccount(self.adsapi, lv_adaccountid)
-        print(lv_fbopt, '------------------------')
-        if lv_fbopt == 'AdSet':
+        
+        #initialize the common objects array 
+        lt_object = []
+        
+        #if Ads options is selected 
+        if lv_fbopt == 'Ads':
+            #Ads specific parameter 
+            #Page Type 
             lt_params[const.CONFIG_FIELDS.FBPageType] = self.ds_config.get(
                 const.CONFIG_FIELDS.FBPageType)
+            #get the ads selected on the screen 
+            lt_adsid = self.ds_config.get(const.CONFIG_FIELDS.FBAds)
+            
+            #get all the ads details  in the selected FBAccount 
+            lv_adaccount.get_ads()
+            
+            # for each ads id selected on the screen 
+            for lw_adsid in lt_adsid:
+                #get the ad details for that specific id 
+                lw_ads = lv_adaccount.ads.get(lw_adsid)
+                #instanitate the Ads object and append in the object list 
+                lt_object.append(facebookapi.FBAds(lw_adsid,self.adsapi,lw_ads))
+        # if Adset Option is selected 
+        if lv_fbopt == 'AdSet':
+            #ad set specific parameter 
+            lt_params[const.CONFIG_FIELDS.FBPageType] = self.ds_config.get(
+                const.CONFIG_FIELDS.FBPageType)
+            #get the adsets selected on the screen 
             lt_adsetid = self.ds_config.get(const.CONFIG_FIELDS.FBAdset)
-            # print("Adset ids are ------------------",lt_adsetid)
+
+            #get all the adsets details in the selected FBAccount 
             lv_adaccount.get_adsets()
+            
+            #for each adsetid selected on the screen
             for lw_adsetid in lt_adsetid:
-                lv_adaccount.adsets.get
+                #get the adset details for that specific id
                 lw_adset = lv_adaccount.adsets.get(lw_adsetid)
-                lv_adset = facebookapi.FBAdset(lw_adsetid, self.adsapi,
-                                               lw_adset)
-                lv_adset.get_insights(i_fields=lt_fields, i_params=lt_params)
+                #instantiate the adset object and append in the object list 
+                lt_object.append(facebookapi.FBAdset(lw_adsetid, self.adsapi,
+                                               lw_adset))
                 '''
+                lv_adset.get_insights(i_fields=lt_fields, i_params=lt_params)
+                
                 lt_ins, lt_ftemp = lv_adset.get_insight_formatted()
                 #collect insights in one final table 
                 for lw_ins in lt_ins:
@@ -97,16 +112,25 @@ class fbadsDataYielder(DataYielder):
                 for lw_ftemp in lt_ftemp:
                     if not(lw_ftemp in lt_fout):
                         lt_fout.append(lw_ftemp)'''
+        #if campaign option is selected 
         if lv_fbopt == 'Campaign':
+            #get the campaign specific filters 
+            lt_params[const.CONFIG_FIELDS.FBObjective] = self.get_param(
+                const.CONFIG_FIELDS.FBObjective)
+            lt_params[const.CONFIG_FIELDS.FBBuyingType] = self.get_param(
+                const.CONFIG_FIELDS.FBBuyingType)
+            
+            #get the campaign ids selected on the screen 
             lt_campaignid = self.ds_config.get('Campaigns')
+            #get all the campaings attached to the FB Account 
             lv_adaccount.get_campaigns()
             
-            print('Campaigns are ------------------------', lt_campaignid)
             for lw_campaignid in lt_campaignid:
                 lw_campaign = lv_adaccount.campaigns.get(lw_campaignid)
-                # get instance of the campaign
-                lv_campaign = facebookapi.FbCampaign(lw_campaignid, self.adsapi,
-                                                     lw_campaign)
+                # get instance of the campaign and append it in the list 
+                lt_object.append(facebookapi.FbCampaign(lw_campaignid, self.adsapi,
+                                                     lw_campaign))
+                '''
                 lt_ftemp = []
                 lt_ins = []
                 # get insights for the campaign
@@ -120,7 +144,26 @@ class fbadsDataYielder(DataYielder):
                 for lw_ftemp in lt_ftemp:
                     if not (lw_ftemp in lt_fout):
                         lt_fout.append(lw_ftemp)
-
+                '''
+        #initialize the insights and the fields list 
+        lt_insights = []
+        lt_fout = []
+        #For each object (this code is common for Ads, Adsets and Campaigns )
+        for lw_object in lt_object:
+            lt_ftemp = []
+            lt_ins = []
+            # get insights for the campaign
+            # this method returns the insights and the list of fields fetched for that call 
+            lw_object.get_insights(i_fields=lt_fields, i_params=lt_params)
+            lt_ins, lt_ftemp = lw_object.get_insight_formatted()
+            # collect insights in one final table
+            for lw_ins in lt_ins:
+                lt_insights.append(lw_ins)
+            # field names should be collected for each call as the fields list might differ in insights fetched.
+            for lw_ftemp in lt_ftemp:
+                if not (lw_ftemp in lt_fout):
+                    lt_fout.append(lw_ftemp)
+            
         # open response file for each survey
         with open(file_path, 'w') as outfile:
             writer = csv.DictWriter(outfile, fieldnames=lt_fout)

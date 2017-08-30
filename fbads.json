@@ -66,6 +66,20 @@
 				"label": "Adsets",
 				"type": "MULTI_SELECT_LIST"
 			},
+			"Ads": {
+				"long_desc": "Ads",
+				"server_auto_suggest": false,
+				"dependent_on": false,
+				"key": "Ads",
+				"placeholder": "",
+				"default_value": null,
+				"server_validate": false,
+				"pattern": null,
+				"required": true,
+				"short_desc": "Ads",
+				"label": "Ads",
+				"type": "MULTI_SELECT_LIST"
+			},
 			"Columngroup": {
 				"long_desc": "Please select the Column Grouping",
 				"server_auto_suggest": false,
@@ -174,23 +188,28 @@
 					"items": [
 						{
 							"name": "Desktop Feed",
-							"value": "desktopfeed"
+							"value": "desktopfeed",
+							"selected": true
 						},
 						{
 							"name": "Mobile Feed",
-							"value": "mobilefeed"
+							"value": "mobilefeed",
+							"selected": true
 						},
 						{
 							"name": "Right Column",
-							"value": "rightcolumn"
+							"value": "rightcolumn",
+							"selected": true
 						},
 						{
 							"name": "Instagram Stream",
-							"value": "instagramstream"
+							"value": "instagramstream",
+							"selected": true
 						},
 						{
 							"name": "Instagram Story",
-							"value": "instagramstory"
+							"value": "instagramstory",
+							"selected": true
 						}
 					],
 					"ui_type": "",
@@ -229,6 +248,13 @@
 					"size": null
 				},
 				"Adsets": {
+					"items": [],
+					"ui_type": "",
+					"onChange": "",
+					"list_type": "DYNAMIC",
+					"size": null
+				},
+				"Ads": {
 					"items": [],
 					"ui_type": "",
 					"onChange": "",
@@ -542,6 +568,15 @@
 				"classes": "",
 				"type": "field",
 				"key": "Adsets"
+			},
+			{
+				"width": {
+					"value": "100",
+					"unit": "%"
+				},
+				"classes": "",
+				"type": "field",
+				"key": "Ads"
 			},
 			{
 				"width": {

@@ -5,6 +5,7 @@ from facebookads.adobjects.adsinsights import AdsInsights
 from facebookads.adobjects.adset import AdSet
 from facebookads.adobjects import user
 from facebookads.adobjects.campaign import Campaign
+from facebookads.adobjects.ad import Ad
 import os
 import csv
 import const
@@ -84,14 +85,11 @@ class FbAdaccount(object):
         lt_campaign = self.adacc.get_campaigns(fields=lt_fields)
         self.campaigns = {}
         print('result from method ----', lt_campaign)
-        # self.campids = []
         for lw_campaign in lt_campaign:
             print('-------', lw_campaign)
             self.campaigns[lw_campaign['id']] = lw_campaign
-            # self.campids.append(lw_campaign['id'])
         print('Campaigns are --------------------', self.campaigns)
 
-        # print('Camp ids are --------------',self.campids)
 
     def get_adset_list(self):
         self.adsetlist = []
@@ -101,12 +99,21 @@ class FbAdaccount(object):
         lt_fields = get_attribtues_in_class(AdSet.Field)
         print('Field for Adsets are ------------------------', lt_fields)
         lt_adsets = self.adacc.get_ad_sets(fields=lt_fields)
-        # self.adsetids = []
         self.adsets = {}
         for lw_adset in lt_adsets:
             self.adsets[lw_adset['id']] = lw_adset
-            # self.adsetids.append(lw_adset['id'])
         print('Adsets are --------------------------', self.adsets)
+
+    def get_ads_list(self):
+        self.adslist = []
+        self.adslist = self.adacc.get_ads(fields=['id','name'])
+
+    def get_ads(self):
+        lt_fields = get_attribtues_in_class(Ad.Field)
+        lt_ads = self.adacc.get_ads(fields=lt_fields)
+        self.ads = {}
+        for lw_ads in lt_ads:
+            self.ads[lw_ads['id']] = lw_ads
 
     def filter_campaign(self, i_objective=None, i_buyingtype=None):
         lt_filtercampobj = []
@@ -169,6 +176,11 @@ class FbObject(object):
                     if not (lw_fields in lt_fields):
                         lt_fields.append(lw_fields)
                 else:
+                    #####******************************************************************
+                    #### This can be improved by using pydash.get 
+                    #### however for that we need to know the list of all fields which have embedded structure
+                    ### parked as of now as the list is unknown 
+                    
                     # if Type is list then get each field in the list
                     if type(lv_value) == type(lt_fields):
                         # print('Fields are -------',lw_fields)
@@ -200,7 +212,9 @@ class FbCampaign(FbObject):
         self.campaign = Campaign(fbid=i_id, api=adsapi)
 
     def get_params(self, i_params):
+        #get the super params 
         FbObject.get_params(self, i_params)
+        #campaign specific parameters 
         self.lt_parameters['filtering'] = [
             {'field': 'objective', 'operator': 'IN',
              'value': i_params.get(const.CONFIG_FIELDS.FBObjective)},
@@ -209,17 +223,24 @@ class FbCampaign(FbObject):
         ]
 
     def get_insights(self, i_fields, i_params):
+        #get the parameters initialized 
         self.get_params(i_params)
+        #call the super insights method 
         FbObject.get_insights(self, i_fields, i_params)
+        #for selected date range loop for each day
         for lw_daterange in self.daterange:
+            # set the time range as specific day 
             self.lt_parameters['time_range'] = {'since': lw_daterange,
                                                 'until': lw_daterange}
             lt_insight = []
+            #get the insights for that specific day
             lt_insight = self.campaign.get_insights(fields=i_fields,
                                                     params=self.lt_parameters)
             # print('Day wise insights are ---------------------------', lw_daterange,'------', lt_insight)
+            #for each date wise insights append the date with field "Day"
             for lw_insight in lt_insight:
                 lw_insight['Day'] = lw_daterange
+                #add the Object details to dictionary --- in this case it will be the feilds specific to the campaign 
                 lw_insight.update(self.obj)
                 self.insights.append(lw_insight)
 
@@ -230,34 +251,81 @@ class FBAdset(FbObject):
         self.Adset = AdSet(fbid=i_id, api=adsapi)
 
     def get_params(self, i_params):
+        #super parameters initialize 
         FbObject.get_params(self, i_params)
+        #parameter specific to the Adset 
         self.lt_parameters['filtering'] = [
             {'field': 'adset.placement.page_types', 'operator': 'ANY',
              'value': i_params.get(const.CONFIG_FIELDS.FBPageType)}
         ]
 
     def get_insights(self, i_fields, i_params):
+        #intialize the parameters before calling the get_insights
         self.get_params(i_params)
+        #call super get_insights
         FbObject.get_insights(self, i_fields, i_params)
         # self.insights = self.Adset.get_insights(fields=i_fields, params=self.lt_parameters)
         # print('Insights for the Adset are --------------',self.insights)
         
+        #for each day in selected date range 
         for lw_daterange in self.daterange:
+            #set the time_range parameter
             self.lt_parameters['time_range'] = {'since': lw_daterange,
                                                 'until': lw_daterange}
-            print('Parameters just before calling the method ----------------',
-                  self.lt_parameters)
             lt_insight = []
+            #get the insights for that day
             lt_insight = self.Adset.get_insights(fields=i_fields,
                                                  params=self.lt_parameters)
             print('Adsets Insights for day ----', lw_daterange, '--------')
             print(lt_insight)
+             
             for lw_insight in lt_insight:
+                #add the day field in the output since its fetched daywise 
                 lw_insight['Day'] = lw_daterange
+                #add the Object details to dictionary --- in this case it will be the feilds specific to the Adset 
                 lw_insight.update(self.obj)
                 self.insights.append(lw_insight)
 
 
+class FBAds(FbObject):
+   def __init__(self, i_id, adsapi, i_object):
+        FbObject.__init__(self, i_id, adsapi, i_object)
+        self.Ads = Ad(fbid=i_id, api=adsapi)
+    
+   def get_params(self, i_params):
+       #get the super parameter
+       FbObject.get_params(self, i_params)
+       #Ad specific parameter 
+       self.lt_parameters['filtering'] = [
+           {'field': 'adset.placement.page_types', 'operator': 'ANY',
+            'value': i_params.get(const.CONFIG_FIELDS.FBPageType)}
+       ]
+   def get_insights(self, i_fields, i_params):
+       #get the parameter set before calling the insights
+       self.get_params(i_params)
+       #get the super insights 
+       FbObject.get_insights(self, i_fields, i_params)
+       #for each day in selected date range 
+       for lw_daterange in self.daterange:
+           #set the time_range parameter 
+           self.lt_parameters['time_range'] = {'since': lw_daterange,
+                                               'until': lw_daterange}
+           print('Parameters just before calling the method ----------------',
+                 self.lt_parameters)
+           lt_insight = []
+           #get the insights
+           lt_insight = self.Ads.get_insights(fields=i_fields,
+                                                params=self.lt_parameters)
+           print('Ads Insights for day ----', lw_daterange, '--------')
+           print(lt_insight)
+           #for each insights add the date field since its fetched date wise 
+           for lw_insight in lt_insight:
+               #Day field is added 
+               lw_insight['Day'] = lw_daterange
+               #add the Object details to dictionary --- in this case it will be the feilds specific to the Ads
+               lw_insight.update(self.obj)
+               self.insights.append(lw_insight)
+    
 def get_fields(i_group):
     print('Group --------------------------------', i_group)
     print('Infields -------------------------', const.gt_infields)
@@ -293,56 +361,3 @@ def get_date_range(i_since, i_until):
     # print('List of dates is as follows -------------------', lt_dates)
     
     return lt_dates
-'''
-    cwd = os.path.dirname(os.path.realpath(__file__))
-    lv_filepath = os.path.join(cwd, 'fieldgroups.csv')
-    print('File to be opened is -----------------------',lv_filepath)
-    print('Group to be checked is ------',i_group)
-    lt_group = []
-    if i_group == 'CampaignPerformance':
-        lt_group = ['Campaign','setting','Performance']
-    elif i_group == 'CampaignEngagement-PagePost':
-        lt_group = ['Campaign','setting','Engagement-PagePost']
-    elif i_group == 'CampaignDelivery':
-        lt_group = ['Campaign','setting','Delivery']
-    elif i_group == 'CampaignVideoEngagement':
-        lt_group = ['Campaign','setting','VideoEngagement']
-    elif i_group == 'CampaingAppEngagement':
-        lt_group = ['Campaign','setting','AppEngagement']
-    elif i_group == 'CampaignCarouselEngagement':
-        lt_group = ['Campaign','setting','CarouselEngagement']
-    elif i_group == 'CampaignPerformanceandClicks':
-        lt_group = ['Campaign','setting','PerformanceandClicks']
-    elif i_group == 'CampaignCrossDevice':
-        lt_group = ['Campaign','setting','CrossDevice']
-    elif i_group == 'CampaignMessengerEngagement':
-        lt_group = ['Campaign','setting','MessengerEngagement']
-    elif i_group == 'All':
-        lt_group = ['Campaign','setting','MessengerEngagement','Performance','Engagement-PagePost','Delivery','VideoEngagement','AppEngagement','CarouselEngagement','PerformanceandClicks','CrossDevice']
-    lt_fields = []
-    lv_file = open(lv_filepath, 'rb')
-    lt_flds = csv.DictReader(lv_file)
-    for lw_flds in lt_flds:
-        if lw_flds.get('group') in lt_group:
-            lv_fname = lw_flds.get('fname')
-            if not lv_fname in lt_fields:
-                lt_fields.append(lv_fname)            
-    
-    return lt_fields
-
-     
-def get_formattedfields(i_file):
-    cwd = os.path.dirname(os.path.realpath(__file__))
-    lv_file = os.path.join(cwd, i_file)
-    lt_fields = [lw_fields.strip() for lw_fields in open(lv_file).read().split('\n')]
-    items = []
-    for lw_fields in lt_fields:
-         items.append({"selectable": False,
-                          'selected': True,
-                              "name": lw_fields,
-                              'value': lw_fields
-                              })      
-    
-    return items
-    
-'''
