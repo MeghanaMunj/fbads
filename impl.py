@@ -1,10 +1,12 @@
+from __future__ import print_function
+
 __author__ = ''
 
 import os
 import const
 import json
-import  logging as log
-import simplestorage.keystorage as simp 
+import logging as log
+import simplestorage.keystorage as simp
 import sdk.const as sdkconst
 from sdk.const import COMMON_CONFIG_FIELDS, \
     COMMON_IDENTITY_FIELDS, NAME, VALUE
@@ -22,6 +24,8 @@ from facebookads.adobjects.adsinsights import AdsInsights
 from facebookads.adobjects import user
 import facebookapi
 import pydash
+
+
 # End of import statements
 
 
@@ -35,11 +39,12 @@ class fbadsManager(ThreePBase):
 
     def __init__(self, storage_handle, api_config):
         
-        self.config_file = "/".join([os.path.dirname(__file__), const.CONFIG_FILE])
+        self.config_file = "/".join(
+            [os.path.dirname(__file__), const.CONFIG_FILE])
         super(fbadsManager, self).__init__(storage_handle, api_config)
 
         self.adsapi = None
-        
+
     def get_identity_spec(self, auth_spec):
         """
            This function is called to render the form on the authentication screen. It provides the render specification to
@@ -47,28 +52,27 @@ class fbadsManager(ThreePBase):
 
         In the simplest case just return the provided auth_spec parameter.
         """
-       
         
         """ Construct the oauth_dialog_url.
         """
-        lv_redirect =  'https://redirect.mammoth.io/redirect/oauth2'
-        #oauth_save_url = "http://localhost:6346/sandbox?integration_key=fbads"
+        lv_redirect = 'https://redirect.mammoth.io/redirect/oauth2'
+        # oauth_save_url = "http://localhost:6346/sandbox?integration_key=fbads"
         oauth_save_url = self.api_config.get("oauth_save_url")
-        print("Oauth save url is --------",oauth_save_url)
+        print("Oauth save url is --------", oauth_save_url)
         url_params = urllib.urlencode({
-                'redirect_uri': lv_redirect,
-                    'client_id': self.api_config.get("client_id"),
-                    'cient_secret': self.api_config.get("client_secret"),
-                    'scope': 'ads_read',
-                    'response_type' : 'code'})
-    
-        oauth_url = 'https://www.facebook.com/v2.10/dialog/oauth?' + "&state=" + urllib2.quote(oauth_save_url)
-        
+            'redirect_uri': lv_redirect,
+            'client_id': self.api_config.get("client_id"),
+            'cient_secret': self.api_config.get("client_secret"),
+            'scope': 'ads_read',
+            'response_type': 'code'})
+
+        oauth_url = 'https://www.facebook.com/v2.10/dialog/oauth?' + "&state=" + urllib2.quote(
+            oauth_save_url)
         
         oauth_url = oauth_url + "&" + url_params
         auth_spec["AUTH_URL"] = oauth_url
-        print "\nThe auth dialog url was " + oauth_url + "\n"
-        
+        print("\nThe auth dialog url was " + oauth_url + "\n")
+
         return auth_spec
 
     def get_identity_config_for_storage(self, params=None):
@@ -81,46 +85,49 @@ class fbadsManager(ThreePBase):
         # create an identity dictionary and store this with the storage handle.
         config = {
             const.IDENTITY_FIELDS.NAME: params.get(const.IDENTITY_FIELDS.NAME),
-            #sdkconst.COMMON_IDENTITY_FIELDS.NAME: params.get(const.IDENTITY_FIELDS.NAME, 'untitled'),
+            # sdkconst.COMMON_IDENTITY_FIELDS.NAME: params.get(const.IDENTITY_FIELDS.NAME, 'untitled'),
         }
-        lv_redirect =  "https://redirect.mammoth.io/redirect/oauth2"
-        print ("Params are ---------------------",params)
+        lv_redirect = "https://redirect.mammoth.io/redirect/oauth2"
+        print ("Params are ---------------------", params)
         """ Construct the oauth_dialog_url.
             """
         lv_auth_code = params.get("code")
-        print("Auth code --------------------",lv_auth_code)
+        print("Auth code --------------------", lv_auth_code)
         url_params = urllib.urlencode({
-                     'redirect_uri': lv_redirect,
-                     "code": lv_auth_code,
-                     'client_id': self.api_config.get("client_id"),
-                     'client_secret': self.api_config.get("client_secret")})
-    
+            'redirect_uri': lv_redirect,
+            "code": lv_auth_code,
+            'client_id': self.api_config.get("client_id"),
+            'client_secret': self.api_config.get("client_secret")})
+
         oauth_url = 'https://graph.facebook.com/v2.10/oauth/access_token?' + url_params
-    
-    
-        print "\nThe auth dialog url was " + oauth_url + "\n"
+
+        print("\nThe auth dialog url was " + oauth_url + "\n")
         
         access_token_response = requests.post(oauth_url)
-        print('Response **********************************',access_token_response)
+        print(
+        'Response **********************************', access_token_response)
         access_json = access_token_response.json()
-        print('Json ************************************',access_json)
-        lv_access_token =  access_json.get('access_token')
-        print("Access token is ---------------------",lv_access_token)
+        print('Json ************************************', access_json)
+        lv_access_token = access_json.get('access_token')
+        print("Access token is ---------------------", lv_access_token)
         # create an identity dictionary and store this with the storage handle.
-        identity_config = { "auth_code" : lv_auth_code,
-                                "access_token" : lv_access_token
-                                }
+        identity_config = {"auth_code": lv_auth_code,
+                           "access_token": lv_access_token
+                           }
         
         if params.get(COMMON_IDENTITY_FIELDS.NAME):
             identity_config[COMMON_IDENTITY_FIELDS.NAME] = params.get(
                 COMMON_IDENTITY_FIELDS.NAME)
         else:
-            lv_fbapi = facebookapi.FbGraph(lv_access_token,self.api_config)
+            lv_fbapi = facebookapi.FbGraph(lv_access_token, self.api_config)
             lt_result = lv_fbapi.get_user_name()
             if lt_result.get('status') != 1:
-                identity_config[sdkconst.COMMON_IDENTITY_FIELDS.NAME] = lt_result.get('user')
+                identity_config[
+                    sdkconst.COMMON_IDENTITY_FIELDS.NAME] = lt_result.get(
+                    'user')
             else:
-                identity_config[sdkconst.COMMON_IDENTITY_FIELDS.NAME] = "unspecified_name"
+                identity_config[
+                    sdkconst.COMMON_IDENTITY_FIELDS.NAME] = "unspecified_name"
         
         return identity_config
 
@@ -157,9 +164,8 @@ class fbadsManager(ThreePBase):
         # using make_kv_list method here, You can use your own logic.
 
         formatted_list = make_kv_list(identity_list, sdkconst.FIELD_IDS.VALUE,
-                                       sdkconst.FIELD_IDS.NAME)
+                                      sdkconst.FIELD_IDS.NAME)
         return formatted_list
-
 
     def delete_identity(self, identity_config):
         """
@@ -184,43 +190,46 @@ class fbadsManager(ThreePBase):
         """
         print('DS Config specs ----------------------------')
         
-        
-        #print('nIdenfity config ----------------------------',identity_config)
-        #print('Params ---------------------------------',params)
+        # print('nIdenfity config ----------------------------',identity_config)
+        # print('Params ---------------------------------',params)
         
         items = []
         lv_adaccountid = params.get('profile')
-        lv_adaccount = facebookapi.FbAdaccount(self.adsapi,lv_adaccountid)
+        lv_adaccount = facebookapi.FbAdaccount(self.adsapi, lv_adaccountid)
         lv_adaccount.get_campaign_list()
         
         for lw_camp in lv_adaccount.camplist:
             items.append({"selectable": False,
-                              'selected': True,
-                                  "name": lw_camp.get('name') + ' - ' + lw_camp.get('id') ,
-                                  'value': lw_camp.get('id')
-                                  })            
-        ds_config_spec['ux']['attributes'][const.CONFIG_FIELDS.FBCAMPAIGN]['items'] = items
+                          'selected': True,
+                          "name": lw_camp.get('name') + ' - ' + lw_camp.get(
+                              'id'),
+                          'value': lw_camp.get('id')
+                          })
+        ds_config_spec['ux']['attributes'][const.CONFIG_FIELDS.FBCAMPAIGN][
+            'items'] = items
         
         # do get and check if its existing, if yes update
         # else create using store_json
-        #self.storage_handle.store_json(lt_campaign,'FBCampaigns','FBCampaign' + lv_adaccountid)
+        # self.storage_handle.store_json(lt_campaign,'FBCampaigns','FBCampaign' + lv_adaccountid)
         
         
         
         items = []
         lv_adaccount.get_adset_list()
         for lw_adset in lv_adaccount.adsetlist:
-            
             items.append({"selectable": False,
-                              'selected': True,
-                                  "name": lw_adset.get('name') + ' - ' + lw_adset.get('id'),
-                                  'value': lw_adset.get('id')
-                                  })            
-        ds_config_spec['ux']['attributes'][const.CONFIG_FIELDS.FBAdset]['items'] = items
-            
-        #get the column group to be displayed 
-        #lv_columngroup = params.get(const.CONFIG_FIELDS.FBCOLUMNGROUP)
-        lv_columgroup = ds_config_spec.get('fields').get(const.CONFIG_FIELDS.FBCOLUMNGROUP).get('default_value')
+                          'selected': True,
+                          "name": lw_adset.get('name') + ' - ' + lw_adset.get(
+                              'id'),
+                          'value': lw_adset.get('id')
+                          })
+        ds_config_spec['ux']['attributes'][const.CONFIG_FIELDS.FBAdset][
+            'items'] = items
+
+        # get the column group to be displayed
+        # lv_columngroup = params.get(const.CONFIG_FIELDS.FBCOLUMNGROUP)
+        lv_columgroup = ds_config_spec.get('fields').get(
+            const.CONFIG_FIELDS.FBCOLUMNGROUP).get('default_value')
         # get the fields list attached to it.
         lt_groupfields = facebookapi.get_fields(lv_columgroup)
         items = []
@@ -229,12 +238,13 @@ class fbadsManager(ThreePBase):
             if lv_key in lt_groupfields:
                 lv_selected = True
             items.append({"selectable": False,
-                                  'selected': lv_selected,
-                                      "name": lw_field ,
-                                          'value': lv_key
-                                          })            
-            
-        ds_config_spec['ux']['attributes'][const.CONFIG_FIELDS.FBFieldList]['items'] = items
+                          'selected': lv_selected,
+                          "name": lw_field,
+                          'value': lv_key
+                          })
+
+        ds_config_spec['ux']['attributes'][const.CONFIG_FIELDS.FBFieldList][
+            'items'] = items
         return ds_config_spec
 
     def get_ds_config_for_storage(self, params=None):
@@ -245,26 +255,27 @@ class fbadsManager(ThreePBase):
              fbaccount,
         
         """
-        #print('Params are ***********************************************************',params)
-        #print('&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&')
+        # print('Params are ***********************************************************',params)
+        # print('&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&')
         lv_fbopt = params.get('fbopt')
-        ds_config = {
-            CONFIG_FIELDS.FBOPT: lv_fbopt,
-            #Ad Account id 
-            CONFIG_FIELDS.FBACCOUNT: params.get('profile'),
-            }
-        
-        ds_config[CONFIG_FIELDS.FBCOLUMNGROUP] = params.get('Columngroup')
-        ds_config[CONFIG_FIELDS.FBCAMPAIGN] = params.get('Campaigns')
-        ds_config[CONFIG_FIELDS.FBBREAKDOWN] = params.get('Breakdown')
-        ds_config[CONFIG_FIELDS.FBDeliveryInfo] = params.get(CONFIG_FIELDS.FBDeliveryInfo)
-        ds_config[CONFIG_FIELDS.FBObjective] = params.get(CONFIG_FIELDS.FBObjective)
-        ds_config[CONFIG_FIELDS.FBBuyingType] = params.get(CONFIG_FIELDS.FBBuyingType)
-        ds_config[CONFIG_FIELDS.FBPageType] = params.get(CONFIG_FIELDS.FBPageType)
-        ds_config[CONFIG_FIELDS.FBFieldList] = params.get(CONFIG_FIELDS.FBFieldList)
-        ds_config[CONFIG_FIELDS.FBAdset] = params.get(CONFIG_FIELDS.FBAdset)
-        
-        #print('DS Config values is ---------------', ds_config)    
+        ds_config = {CONFIG_FIELDS.FBOPT: lv_fbopt,
+                     CONFIG_FIELDS.FBACCOUNT: params.get('profile'),
+                     CONFIG_FIELDS.FBCOLUMNGROUP: params.get('Columngroup'),
+                     CONFIG_FIELDS.FBCAMPAIGN: params.get('Campaigns'),
+                     CONFIG_FIELDS.FBBREAKDOWN: params.get('Breakdown'),
+                     CONFIG_FIELDS.FBDeliveryInfo: params.get(
+                         CONFIG_FIELDS.FBDeliveryInfo),
+                     CONFIG_FIELDS.FBObjective: params.get(
+                         CONFIG_FIELDS.FBObjective),
+                     CONFIG_FIELDS.FBBuyingType: params.get(
+                         CONFIG_FIELDS.FBBuyingType),
+                     CONFIG_FIELDS.FBPageType: params.get(
+                         CONFIG_FIELDS.FBPageType),
+                     CONFIG_FIELDS.FBFieldList: params.get(
+                         CONFIG_FIELDS.FBFieldList),
+                     CONFIG_FIELDS.FBAdset: params.get(CONFIG_FIELDS.FBAdset)}
+
+        # print('DS Config values is ---------------', ds_config)
         return ds_config
 
     def format_ds_configs_list(self, ds_config_list, params=None):
@@ -290,9 +301,9 @@ class fbadsManager(ThreePBase):
                 ...
         """
 
-        formatted_list = make_kv_list(ds_config_list, sdkconst.VALUE, sdkconst.NAME)
+        formatted_list = make_kv_list(ds_config_list, sdkconst.VALUE,
+                                      sdkconst.NAME)
         return formatted_list
-
 
     def is_connection_valid(self, identity_config, ds_config=None):
         """
@@ -319,7 +330,7 @@ class fbadsManager(ThreePBase):
             :return: dict object with a mandatory key "is_valid",
             whether the given ds_config is valid or not
         """
-        return {'is_valid':True}
+        return {'is_valid': True}
 
     def get_data(self, identity_key, config_key, start_date=None,
                  end_date=None,
@@ -337,10 +348,10 @@ class fbadsManager(ThreePBase):
         :return: instance of DataYielder class defined in util.py
         """
         return fbadsDataYielder(storage_handle,
-                    api_config,
-                    identity_key,
-                    config_key,
-                    start_date, end_date, batch_id=batch_id)
+                                api_config,
+                                identity_key,
+                                config_key,
+                                start_date, end_date, batch_id=batch_id)
 
     def get_display_info(self, identity_config, ds_config):
         """
@@ -387,11 +398,13 @@ class fbadsManager(ThreePBase):
                         augmented_params["fields"] = {"table_description": {"label": "Table description ({0}):".format(params.get("tables"))}
                                                       }
         '''
-        #ds_config_spec['ux']['attributes']['Campaignfields']['items'] = items
-        print('\n\n\n\n\nAugmented parameters ---------------------------------',params)
-        print('Identity config ------------------------------',identity_config)
+        # ds_config_spec['ux']['attributes']['Campaignfields']['items'] = items
+        print(
+        '\n\n\n\n\nAugmented parameters ---------------------------------',
+        params)
+        print('Identity config ------------------------------', identity_config)
         lv_fbopt = params.get('fbopt')
-        #if lv_fbopt == 'Campaign':
+        # if lv_fbopt == 'Campaign':
 
         
         return {}
@@ -442,16 +455,17 @@ class fbadsManager(ThreePBase):
             in the following format:"""
         items = []
         lv_access_token = identity_config.get("access_token")
-        lv_fbads = facebookapi.FbGraph(lv_access_token,self.api_config)
+        lv_fbads = facebookapi.FbGraph(lv_access_token, self.api_config)
         self.adsapi = lv_fbads.get_adsapi()
         lt_adaccount = lv_fbads.get_adaccount()
         
         for lw_adaccount in lt_adaccount:
             items.append({"selectable": False,
-                                          'selected': True,
-                                          "name": lw_adaccount.get('name') + ' - ' + lw_adaccount.get('account_id'),
-                                          'value': lw_adaccount.get('id')
-                                          })
+                          'selected': True,
+                          "name": lw_adaccount.get(
+                              'name') + ' - ' + lw_adaccount.get('account_id'),
+                          'value': lw_adaccount.get('id')
+                          })
         
         return items
 
