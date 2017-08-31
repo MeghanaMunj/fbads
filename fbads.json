@@ -142,7 +142,7 @@
 				"default_value": null,
 				"server_validate": false,
 				"pattern": null,
-				"required": true,
+				"required": false,
 				"short_desc": "Breakdown",
 				"label": "Breakdown",
 				"type": "SINGLE_SELECT_LIST"
