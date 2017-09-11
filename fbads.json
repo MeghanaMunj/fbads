@@ -86,7 +86,7 @@
 				"dependent_on": false,
 				"key": "Columngroup",
 				"placeholder": "",
-				"default_value": "Performance",
+				"default_value": "Engagement",
 				"server_validate": false,
 				"pattern": null,
 				"required": true,
@@ -276,7 +276,7 @@
 						},
 						{
 							"name": "Engagement Page Post",
-							"value": "Engagement-PagePost"
+							"value": "Engagement"
 						},
 						{
 							"name": "Delivery",
@@ -480,49 +480,61 @@
 							"value": "age"
 						},
 						{
-							"name": "Country",
-							"value": "country"
-						},
-						{
-							"name": "dma",
-							"value": "dma"
-						},
-						{
 							"name": "gender",
 							"value": "gender",
 							"selected": true
 						},
 						{
-							"name": "Frequency Value",
-							"value": "frequency_value"
+							"name": "Age & Gender",
+							"value": "agegender"
+						},
+						{
+							"name": "Country",
+							"value": "country"
+						},
+						{
+							"name": "Region",
+							"value": "region"
+						},
+						{
+							"name": "Dma Region",
+							"value": "dma"
 						},
 						{
 							"name": "Impression Device",
 							"value": "impression_device"
 						},
 						{
-							"name": "Place Page Id",
-							"value": "place_page_id"
+							"name": "Platform",
+							"value": "publisher_platform"
 						},
 						{
-							"name": "Publisher Platform",
-							"value": "publisher_platform"
+							"name": "Platform & Device",
+							"value": "platform_device"
 						},
 						{
 							"name": "Platform Position",
 							"value": "platform_position"
 						},
 						{
-							"name": "Device Platform",
-							"value": "device_platform"
+							"name": "Place Page Id",
+							"value": "place_page_id"
+						},
+						{
+							"name": "Placement",
+							"value": "placement"
+						},
+						{
+							"name": "Placement&Deivce",
+							"value": "placement_device"
 						},
 						{
 							"name": "Product Id",
 							"value": "product_id"
 						},
 						{
-							"name": "Region",
-							"value": "region"
+							"name": "Frequency Value",
+							"value": "frequency_value"
 						},
 						{
 							"name": "Hourly Stats Agg by Advertiser Time zone",

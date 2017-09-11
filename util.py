@@ -45,7 +45,13 @@ class fbadsDataYielder(DataYielder):
         lv_fbaccount = self.ds_config.get(const.CONFIG_FIELDS.FBACCOUNT)
         lv_fbopt = self.ds_config.get(const.CONFIG_FIELDS.FBOPT)
         lv_fbgroup = self.ds_config.get(const.CONFIG_FIELDS.FBCOLUMNGROUP)        
-        lt_fields = self.get_selected_fields(const.CONFIG_FIELDS.FBFieldList)
+        # get the selecte feilds from ds config 
+        lt_screenfield = self.ds_config.get(const.CONFIG_FIELDS.FBFieldList)
+        lt_fields = self.get_selected_fields(lt_screenfield)
+        print("Selected fields are -----------------------------------------")
+        print(lt_fields)
+        print("Screen fields are -----------------------------------------")
+        print(lt_screenfield)
         lv_adaccountid = self.ds_config.get(const.CONFIG_FIELDS.FBACCOUNT)
         
         #initialize the parameters to call the get_insights method 
@@ -73,7 +79,7 @@ class fbadsDataYielder(DataYielder):
                 const.CONFIG_FIELDS.FBPageType)
             #get the ads selected on the screen 
             lt_adsid = self.ds_config.get(const.CONFIG_FIELDS.FBAds)
-            
+            #print('Selected Ads are ----------------------------', lt_adsid)
             #get all the ads details  in the selected FBAccount 
             lv_adaccount.get_ads()
             
@@ -82,7 +88,7 @@ class fbadsDataYielder(DataYielder):
                 #get the ad details for that specific id 
                 lw_ads = lv_adaccount.ads.get(lw_adsid)
                 #instanitate the Ads object and append in the object list 
-                lt_object.append(facebookapi.FBAds(lw_adsid,self.adsapi,lw_ads))
+                lt_object.append(facebookapi.FBAds(self.adsapi,lw_ads))
         # if Adset Option is selected 
         if lv_fbopt == 'AdSet':
             #ad set specific parameter 
@@ -99,19 +105,8 @@ class fbadsDataYielder(DataYielder):
                 #get the adset details for that specific id
                 lw_adset = lv_adaccount.adsets.get(lw_adsetid)
                 #instantiate the adset object and append in the object list 
-                lt_object.append(facebookapi.FBAdset(lw_adsetid, self.adsapi,
+                lt_object.append(facebookapi.FBAdset(self.adsapi,
                                                lw_adset))
-                '''
-                lv_adset.get_insights(i_fields=lt_fields, i_params=lt_params)
-                
-                lt_ins, lt_ftemp = lv_adset.get_insight_formatted()
-                #collect insights in one final table 
-                for lw_ins in lt_ins:
-                    lt_insights.append(lw_ins)
-                #field names should be collected for each call as the fields list might differ in insights fetched.
-                for lw_ftemp in lt_ftemp:
-                    if not(lw_ftemp in lt_fout):
-                        lt_fout.append(lw_ftemp)'''
         #if campaign option is selected 
         if lv_fbopt == 'Campaign':
             #get the campaign specific filters 
@@ -128,23 +123,8 @@ class fbadsDataYielder(DataYielder):
             for lw_campaignid in lt_campaignid:
                 lw_campaign = lv_adaccount.campaigns.get(lw_campaignid)
                 # get instance of the campaign and append it in the list 
-                lt_object.append(facebookapi.FbCampaign(lw_campaignid, self.adsapi,
+                lt_object.append(facebookapi.FbCampaign( self.adsapi,
                                                      lw_campaign))
-                '''
-                lt_ftemp = []
-                lt_ins = []
-                # get insights for the campaign
-                # this method returns the insights and the list of fields fetched for that call 
-                lv_campaign.get_insights(i_fields=lt_fields, i_params=lt_params)
-                lt_ins, lt_ftemp = lv_campaign.get_insight_formatted()
-                # collect insights in one final table
-                for lw_ins in lt_ins:
-                    lt_insights.append(lw_ins)
-                # field names should be collected for each call as the fields list might differ in insights fetched.
-                for lw_ftemp in lt_ftemp:
-                    if not (lw_ftemp in lt_fout):
-                        lt_fout.append(lw_ftemp)
-                '''
         #initialize the insights and the fields list 
         lt_insights = []
         lt_fout = []
@@ -152,14 +132,18 @@ class fbadsDataYielder(DataYielder):
         for lw_object in lt_object:
             lt_ftemp = []
             lt_ins = []
+            #get the parameters
+            lw_object.get_params(lt_params)
             # get insights for the campaign
             # this method returns the insights and the list of fields fetched for that call 
             lw_object.get_insights(i_fields=lt_fields, i_params=lt_params)
-            lt_ins, lt_ftemp = lw_object.get_insight_formatted()
+            lt_ins, lt_ftemp = lw_object.get_insight_formatted(i_screenfield=lt_screenfield)
             # collect insights in one final table
             for lw_ins in lt_ins:
                 lt_insights.append(lw_ins)
-            # field names should be collected for each call as the fields list might differ in insights fetched.
+            print('Insights for object ---------',lt_insights)
+            # field names should be collected for each call as the fields list might differ 
+            #in insights fetched for each campaign/Adset/Ads.
             for lw_ftemp in lt_ftemp:
                 if not (lw_ftemp in lt_fout):
                     lt_fout.append(lw_ftemp)
@@ -219,14 +203,12 @@ class fbadsDataYielder(DataYielder):
         lt_output = self.ds_config.get(i_name)
         return lt_output
 
-    def get_selected_fields(self, i_name):
-        # get the selecte feilds from ds config 
-        lt_screenfield = self.get_param(i_name)
+    def get_selected_fields(self, i_screenfield):
         lt_fields = []
         # add the default fields 
-        lt_fields = lt_fields + const.gt_default
+        #lt_fields = lt_fields + const.gt_default
         # for each selected field 
-        for lw_screenfield in lt_screenfield:
+        for lw_screenfield in i_screenfield:
             lv_pos = lw_screenfield.find(':')
             # if colon is there then get the value before colon eg actions or cost_per_action_type 
             if lv_pos != -1:

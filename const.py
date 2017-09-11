@@ -26,7 +26,9 @@ class CONFIG_FIELDS:
 
 
 
-gt_default = [ 'account_id', 'account_name', 'buying_type', 'campaign_id', 'campaign_name', 'date_start', 'date_stop', 'objective']
+#gt_default = [ 'account_id', 'account_name', 'buying_type', 'campaign_id', 'campaign_name', 'date_start', 'date_stop', 'objective']
+
+
 gt_infields = { "Performance": { "actions":['post_engagement'] ,
                                  "reach": [],
                                  'cost_per_action_type' : ['post_engagement'],
@@ -111,11 +113,17 @@ gt_infields = { "Performance": { "actions":['post_engagement'] ,
 
                 }
 
+
+
+gt_actionfields = ["actions", "cost_per_action_type", "cost_per_unique_action_type","unique_actions"]        
+
+
 gt_fielddesc = {
     'total_unique_actions' :   'People Taking actions',
     'cpp' :   'Cost per 1,000 People Reached',
     'cpm' :   'CPM (Cost per 1,000 Impressions)',
     'actions:video_view' :   '3 second Video Views  ',
+    'actions:post_reaction' :   'Post Reactions',
     'video_avg_percent_watched_actions:video_view' :   'Video Percentage Watched',
     'video_p100_watched_actions:video_view' :   'Video Watches at 100%',
     'video_p25_watched_actions:video_view' :   'Video Watches at 25%',
@@ -141,7 +149,7 @@ gt_fielddesc = {
     'total_actions' :   'Actions',
     'unique_clicks' :   'Unique Clicks(All)',
     'unique_ctr' :   'Unique CTR(All)',
-    'website_ctr_link_click' :   'CTR (Link Click-Through Rate)',
+    'website_ctr:link_click' :   'CTR (Link Click-Through Rate)',
     'actions:like' :   'Results',
     'reach' :   'Reach',
     'frequency' :   'Frequency',
@@ -168,3 +176,6 @@ gt_fielddesc = {
     
                 
                 }
+gt_breakdown = { "agegender" : ["age","gender"],
+                 "platform_device": ["publisher_platform","impression_device"],
+                 "placement_device": ["placement","impression_device"] }

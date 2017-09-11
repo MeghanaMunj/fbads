@@ -1,4 +1,4 @@
-from __future__ import print_function
+efrom __future__ import print_function
 
 __author__ = ''
 
@@ -286,7 +286,8 @@ class fbadsManager(ThreePBase):
                          CONFIG_FIELDS.FBPageType),
                      CONFIG_FIELDS.FBFieldList: params.get(
                          CONFIG_FIELDS.FBFieldList),
-                     CONFIG_FIELDS.FBAdset: params.get(CONFIG_FIELDS.FBAdset)}
+                     CONFIG_FIELDS.FBAdset: params.get(CONFIG_FIELDS.FBAdset),
+                     CONFIG_FIELDS.FBAds: params.get(CONFIG_FIELDS.FBAds)}
 
         # print('DS Config values is ---------------', ds_config)
         return ds_config

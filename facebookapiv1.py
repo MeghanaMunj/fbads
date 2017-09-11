@@ -6,6 +6,16 @@ from facebookads.adobjects import user
 from facebookads.adobjects.campaign import Campaign
 import os 
 import pydash
+def get_attribtues_in_class(i_object):
+    lt_attributes = []
+    lt_values = i_object.__dict__
+    for lv_value in lt_values:
+        if lv_value[:2] != '__':
+            # print(lv_value,'----------',lt_values.get(lv_value))
+            lt_attributes.append(lt_values.get(lv_value))
+    return lt_attributes
+
+
 class FbGraph(object):
     def __init__(self,access_token,apid,ap_secret):
         #initiate the session and update the headers
@@ -65,7 +75,7 @@ class FbCampaign(object):
     def get_insights(self,i_fields,i_breakdown):
         
         params = {
-            'time_range': {'since':'2017-06-01','until':'2017-08-04'},
+            'time_range': {'since':'2017-06-01','until':'2017-08-10'},
             'filtering': [],
             'breakdowns': i_breakdown,
         }        
@@ -75,8 +85,8 @@ class FbCampaign(object):
         lt_fields = []
         lt_output = []
         for lw_insights in self.insights:
-            print('FB insights Raw --------------***************',lw_insights)
-            print(pydash.collections.map_(lw_insights))
+            #print('FB insights Raw --------------***************',lw_insights)
+            #print(pydash.collections.map_(lw_insights))
             lw_row = {}
             lw_flatrow = {}
             '''

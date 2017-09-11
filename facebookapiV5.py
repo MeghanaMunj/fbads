@@ -13,23 +13,6 @@ from datetime import datetime
 from datetime import timedelta
 import pydash
 
-def flatten_json(y):
-    out = {}
-
-    def flatten(x, name=''):
-        if type(x) is dict:
-            for a in x:
-                flatten(x[a], name + a + ':')
-        elif type(x) is list:
-            i = 0
-            for a in x:
-                flatten(a, name + str(i) + ':')
-                i += 1
-        else:
-            out[name[:-1]] = x
-
-    flatten(y)
-    return out
 
 def get_attribtues_in_class(i_object):
     lt_attributes = []
@@ -95,6 +78,9 @@ class FbAdaccount(object):
     def get_campaign_list(self):
         self.camplist = []
         self.camplist = self.adacc.get_campaigns(fields=['id', 'name'])
+        for lw_camp in self.camplist:
+            print('campaing ------',lw_camp)
+            print('Type of camp -------' ,type(lw_camp))
     def get_campaigns(self):
         lt_fields = get_attribtues_in_class(Campaign.Field)
         #print('Fields for campaign are ------', lt_fields)
@@ -102,7 +88,10 @@ class FbAdaccount(object):
         self.campaigns = {}
         #print('result from method ----', lt_campaign)
         for lw_campaign in lt_campaign:
+            print('-------', lw_campaign)
+            print('Type of campaign is ---------', type(lw_campaign))
             self.campaigns[lw_campaign['id']] = lw_campaign
+        print('Campaigns are --------------------', self.campaigns)
 
 
     def get_adset_list(self):
@@ -142,8 +131,8 @@ class FbAdaccount(object):
 
 
 class FbObject(object):
-    def __init__(self, adsapi, i_object):
-        
+    def __init__(self, i_id, adsapi, i_object):
+        self.id = id
         self.insights = []
         self.obj = i_object
 
@@ -159,6 +148,11 @@ class FbObject(object):
             self.lt_breakdown = [ lv_breakdown]
         print('Breakdown value ----------------------------',self.lt_breakdown)
         self.lt_parameters = {
+            # 'time_range': {'since':i_params.get('since'),'until':i_params.get('until')},
+            # 'filtering': [
+            #              {'field':'objective','operator':'IN','value':i_params.get(const.CONFIG_FIELDS.FBObjective)},
+            #              {'field':'buying_type','operator':'IN','value':i_params.get(const.CONFIG_FIELDS.FBBuyingType)},                                                    
+            #               ],
             'breakdowns': self.lt_breakdown,
             
             # 'action_attribution_windows':['1d_view','7d_view','28d_view','default']
@@ -166,48 +160,31 @@ class FbObject(object):
 
     def get_insights(self, i_fields, i_params):
         
+        # self.get_params(i_params)
         # self.daterange = get_date_range(i_since=i_params.get('since'), i_until=i_params.get('until'))
         self.daterange = get_date_range(i_since='2017-07-30',
                                         i_until='2017-08-01')
         print('Date range is ---------------', self.daterange)
 
-        #for selected date range loop for each day
-        for lw_daterange in self.daterange:
-            # set the time range as specific day 
-            self.lt_parameters['time_range'] = {'since': lw_daterange,
-                                                'until': lw_daterange}
-            lt_insight = []
-            #get the insights for that specific day
-            lt_insight = self.obj.get_insights(fields=i_fields,
-                                                    params=self.lt_parameters)
-            #print('Day wise insights are ---------------------------', lw_daterange,'------', lt_insight)
-            #for each date wise insights append the date with field "Day"
-            for lw_insight in lt_insight:
-                lw_insight['Day'] = lw_daterange
-                #add the Object details to dictionary --- in this case it will be the feilds specific to the campaign 
-                #lw_insight.update(self.obj)
-                self.insights.append(lw_insight)
         # self.insights = []
 
         # print('Just before getting insights -----------------------------',lt_parameters)
         # self.insights = self.campaign.get_insights(fields=i_fields, params=lt_parameters)
-        print('Insights for Campaign -------------------------',self.obj.get('id'))
-        #print(self.insights)
+        # print('Insights for Campaign -------------------------',self.campaignid)
+        # print(self.insights)
     
     def get_insight_formatted(self,i_screenfield):
-        lt_fields = ['Day']
+        lt_fields = []
         lt_output = []
         for lw_insights in self.insights:
             #print('FB insights Raw --------------***************',lw_insights)
             #print('Raw Object -------------------------------',self.obj)
             lw_row = {}
-            lw_row['Day'] = lw_insights.get('Day')
-            lt_obj = {}
-            lt_obj = flatten_json(self.obj.export_all_data())
-            for lv_fname in lt_obj:
-                lv_fvalue = lt_obj.get(lv_fname)
+            
+            for lv_fname in self.obj:
+                lv_fvalue = self.obj.get(lv_fname)
                 lw_row[lv_fname] = lv_fvalue
-                #print('Field name ------',lv_fname,'------value ------',lv_fvalue)
+                print('Field name ------',lv_fname,'------value ------',lv_fvalue)
                 if not (lv_fname in lt_fields):
                     lt_fields.append(lv_fname)
             for lw_screenfield in i_screenfield:
@@ -250,6 +227,10 @@ class FbObject(object):
 
 
 class FbCampaign(FbObject):
+    def __init__(self, i_id, adsapi, i_object):
+        FbObject.__init__(self, i_id, adsapi, i_object)
+        self.campaign = Campaign(fbid=i_id, api=adsapi)
+
     def get_params(self, i_params):
         #get the super params 
         FbObject.get_params(self, i_params)
@@ -261,7 +242,34 @@ class FbCampaign(FbObject):
              'value': i_params.get(const.CONFIG_FIELDS.FBBuyingType)},
         ]
 
+    def get_insights(self, i_fields, i_params):
+        #get the parameters initialized 
+        self.get_params(i_params)
+        #call the super insights method 
+        FbObject.get_insights(self, i_fields, i_params)
+        #for selected date range loop for each day
+        for lw_daterange in self.daterange:
+            # set the time range as specific day 
+            self.lt_parameters['time_range'] = {'since': lw_daterange,
+                                                'until': lw_daterange}
+            lt_insight = []
+            #get the insights for that specific day
+            lt_insight = self.campaign.get_insights(fields=i_fields,
+                                                    params=self.lt_parameters)
+            #print('Day wise insights are ---------------------------', lw_daterange,'------', lt_insight)
+            #for each date wise insights append the date with field "Day"
+            for lw_insight in lt_insight:
+                lw_insight['Day'] = lw_daterange
+                #add the Object details to dictionary --- in this case it will be the feilds specific to the campaign 
+                lw_insight.update(self.obj)
+                self.insights.append(lw_insight)
+
+
 class FBAdset(FbObject):
+    def __init__(self, i_id, adsapi, i_object):
+        FbObject.__init__(self, i_id, adsapi, i_object)
+        self.Adset = AdSet(fbid=i_id, api=adsapi)
+
     def get_params(self, i_params):
         #super parameters initialize 
         FbObject.get_params(self, i_params)
@@ -270,16 +278,74 @@ class FBAdset(FbObject):
             {'field': 'adset.placement.page_types', 'operator': 'ANY',
              'value': i_params.get(const.CONFIG_FIELDS.FBPageType)}
         ]
+
+    def get_insights(self, i_fields, i_params):
+        #intialize the parameters before calling the get_insights
+        self.get_params(i_params)
+        #call super get_insights
+        FbObject.get_insights(self, i_fields, i_params)
+        # self.insights = self.Adset.get_insights(fields=i_fields, params=self.lt_parameters)
+        # print('Insights for the Adset are --------------',self.insights)
+        
+        #for each day in selected date range 
+        for lw_daterange in self.daterange:
+            #set the time_range parameter
+            self.lt_parameters['time_range'] = {'since': lw_daterange,
+                                                'until': lw_daterange}
+            lt_insight = []
+            #get the insights for that day
+            lt_insight = self.Adset.get_insights(fields=i_fields,
+                                                 params=self.lt_parameters)
+            #print('Adsets Insights for day ----', lw_daterange, '--------')
+            #print(lt_insight)
+             
+            for lw_insight in lt_insight:
+                #add the day field in the output since its fetched daywise 
+                lw_insight['Day'] = lw_daterange
+                #add the Object details to dictionary --- in this case it will be the feilds specific to the Adset 
+                lw_insight.update(self.obj)
+                self.insights.append(lw_insight)
+
+
 class FBAds(FbObject):
+   def __init__(self, i_id, adsapi, i_object):
+        FbObject.__init__(self, i_id, adsapi, i_object)
+        self.Ads = Ad(fbid=i_id, api=adsapi)
+    
    def get_params(self, i_params):
        #get the super parameter
        FbObject.get_params(self, i_params)
-       #this parameter doesnt work for ads !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
        #Ad specific parameter 
-       '''self.lt_parameters['filtering'] = [
+       self.lt_parameters['filtering'] = [
            {'field': 'adset.placement.page_types', 'operator': 'ANY',
             'value': i_params.get(const.CONFIG_FIELDS.FBPageType)}
-       ]'''
+       ]
+   def get_insights(self, i_fields, i_params):
+       #get the parameter set before calling the insights
+       self.get_params(i_params)
+       #get the super insights 
+       FbObject.get_insights(self, i_fields, i_params)
+       #for each day in selected date range 
+       for lw_daterange in self.daterange:
+           #set the time_range parameter 
+           self.lt_parameters['time_range'] = {'since': lw_daterange,
+                                               'until': lw_daterange}
+           print('Parameters just before calling the method ----------------',
+                 self.lt_parameters)
+           lt_insight = []
+           #get the insights
+           lt_insight = self.Ads.get_insights(fields=i_fields,
+                                                params=self.lt_parameters)
+           print('Ads Insights for day ----', lw_daterange, '--------')
+           print(lt_insight)
+           #for each insights add the date field since its fetched date wise 
+           for lw_insight in lt_insight:
+               #Day field is added 
+               lw_insight['Day'] = lw_daterange
+               #add the Object details to dictionary --- in this case it will be the feilds specific to the Ads
+               lw_insight.update(self.obj)
+               self.insights.append(lw_insight)
+    
 def get_fields(i_group):
     print('Group --------------------------------', i_group)
     print('Infields -------------------------', const.gt_infields)
@@ -292,7 +358,7 @@ def get_fields(i_group):
         else:
             for lw_row in lw_infields:
                 lt_outdisplay.append(lv_key + ':' + lw_row)
-    print('Out fields on screen are ------------------------',lt_outdisplay)    
+    
     return lt_outdisplay
 
 
